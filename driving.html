@@ -61,124 +61,107 @@
         return path
     }
 
-    function generate_ride(map, startPoint, endPoint) {
-    //构造路线导航类
-
-    var driving = new AMap.Driving({
-        map: map,
-        //panel: "panel"
-    }); 
-
-    // 根据起终点经纬度规划驾车导航路线
-    var marker = new AMap.Marker({
-        map: map,
-        position: startPoint,
-        icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
-        offset: new AMap.Pixel(-13, -26),
-    });
-
-    driving.search(startPoint, endPoint, function(status, result) {
-        // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
-        if (status === 'complete') {
-            log.success('绘制驾车路线完成');
-            var path = parse(result.routes[0]);
-
-            AMap.plugin('AMap.MoveAnimation', function(){
-
-                var passedPolyline = new AMap.Polyline({
-                    map: map,
-                    strokeColor: "FF0000",  //线颜色
-                    strokeWeight: 0,      //线宽
-                });
-                
-                marker.on('moving', function (e) {
-                    passedPolyline.setPath(e.passedPath);
-                });
-
-                marker.moveAlong(path, {
-                        // 每一段的速度
-                        speed: 80,
-                    });
-
-                marker.on('click', function() {
-                    log.success(marker.getPosition());}
-                );
-
-
-                marker.on('movealong', function() {
-                    log.success('Arrive');
-                    marker.hide();
-                    driving.clear();
-                    var startPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
-                    var endPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
-                    generate_ride(map, startPoint, endPoint);
-                });
-
-                marker.off('click', function() {});
-
-                    });
-        
-        } else {
-            log.error('获取驾车数据失败：' + result)
+    class Application {
+        constructor(vehicle_num, lng, lat, variance) {
+            this.vehicle_num = vehicle_num;
+            this.markers = [];
+            this.drivings = [];
+            this.destinations = [];
+            this.lng = lng;
+            this.lat = lat;
+            this.variance = variance;
+            this.map = new AMap.Map("container", {
+                resizeEnable: true,
+                center: [lng, lat],//地图中心点
+                zoom: 13 //地图显示的缩放级别
+            });
         }
-    });
 
-    return [driving, marker];
+        init() {
+            for (var i = 0; i < this.vehicle_num; i++) {
+                this.generate_ride();
+            }
+        }
+
+        generate_ride() {
+            var startPoint = new AMap.LngLat(this.lng+Math.random()*this.variance, this.lat+Math.random()*this.variance);
+            var endPoint = new AMap.LngLat(this.lng+Math.random()*this.variance, this.lat+Math.random()*this.variance);
+            var map = this.map;
+            var p = this;
+            //构造路线导航类
+            var driving = new AMap.Driving({
+                map: map,
+                autoFitView: false,
+                showTraffic: false,
+                hideMarkers: true,
+                //panel: "panel"
+            });
+            // 根据起终点经纬度规划驾车导航路线
+            var marker = new AMap.Marker({
+                map: map,
+                position: startPoint,
+                icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
+                offset: new AMap.Pixel(-13, -26),
+            });
+
+            driving.search(startPoint, endPoint, function(status, result) {
+                // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
+                if (status == 'complete') {
+                    //log.success('绘制驾车路线完成');
+                    var path = parse(result.routes[0]);
+
+                    AMap.plugin('AMap.MoveAnimation', function(){
+
+                        var passedPolyline = new AMap.Polyline({
+                            map: map,
+                            strokeColor: "FF0000",  //线颜色
+                            strokeWeight: 0,      //线宽
+                        });
+                        
+                        marker.on('moving', function (e) {
+                            passedPolyline.setPath(e.passedPath);
+                        });
+
+                        marker.moveAlong(path, {
+                                // 每一段的速度
+                                speed: 80,
+                            });
+
+                        marker.on('click', function() {
+                            log.success(marker.getPosition());}
+                        );
+
+
+                        marker.on('movealong', function() {
+                            //log.success('Arrive');
+                            marker.hide();
+                            driving.clear();
+                            p.generate_ride();
+                        });
+
+                        marker.off('click', function() {});
+
+                            });
+                
+                } else {
+                    log.error('获取驾车数据失败：' + result)
+                }
+            });
+
+            this.drivings.push(driving);
+            this.markers.push(marker);
+            this.destinations.push(endPoint);
+        }
+
+
     }
 
     //基本地图加载
     var lng = 116.397428;
     var lat = 39.90923;
-    var map = new AMap.Map("container", {
-        resizeEnable: true,
-        center: [lng, lat],//地图中心点
-        zoom: 13 //地图显示的缩放级别
-    });
-
-    // singleton，单例模式，把markers drivings destinations封装起来，同时把生成路径封装成一个方法
-    var markers = [];
-    var drivings = [];
-    var destinations = [];
-    for (var i = 0; i < 4; i++) {
-        // 封装方法
-        var startPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
-        var endPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
-        var res = generate_ride(map, startPoint, endPoint);
-        destinations.push(endPoint);
-        drivings.push(res[0]);
-        markers.push(res[1]);
-        // 封装方法
-    }
-
-    var thresh = 0.00001;
-    window.setInterval(function check_for_arrivals() {
-        var removals = [];
-        var deltas = [];
-        for (var i = 3; i >= 0; i--) {
-            var startLngLat = markers[i].getPosition();
-            var endLngLat = destinations[i];
-            
-            if (Math.abs(startLngLat.getLng()-endLngLat.getLng()) <= thresh && Math.abs(startLngLat.getLat()-endLngLat.getLat()) <= thresh) {
-                // 封装方法
-                var startPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
-                var endPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
-                var res = generate_ride(map, startPoint, endPoint);
-                destinations.push(endPoint);
-                drivings.push(res[0]);
-                markers.push(res[1]);
-                // 封装方法
-                removals.push(i);
-            }
-
-            deltas.push(Math.abs(startLngLat.getLng()-endLngLat.getLng()));
-        }
-        for (var i = 0; i < removals.length; i++) {
-            markers.splice(removals[i], 1);
-        }
-
-        console.log(removals);
-        console.log(deltas);
-    }, 1000);
+    
+    let application = new Application(20, lng, lat, 0.01);
+    application.init();
     //window.setInterval(function f() {console.log(markers)}, 2000);
 </script>
 </body>
