@@ -61,15 +61,23 @@
         return path
     }
 
+    class Car {
+        constructor(marker, id, speed) {
+            this.marker = marker;
+            this.id = id;
+            this.speed = speed;
+        }
+    }
+
     class Application {
         constructor(vehicle_num, lng, lat, variance) {
             this.vehicle_num = vehicle_num;
-            this.markers = [];
-            this.drivings = [];
-            this.destinations = [];
+            this.cars = [];
+            this.timers = [];
             this.lng = lng;
             this.lat = lat;
             this.variance = variance;
+            this.id = 0;
             this.map = new AMap.Map("container", {
                 resizeEnable: true,
                 center: [lng, lat],//地图中心点
@@ -78,12 +86,16 @@
         }
 
         init() {
-            for (var i = 0; i < this.vehicle_num; i++) {
+            for (let i = 0; i < this.vehicle_num; i++) {
                 this.generate_ride();
             }
         }
 
         generate_ride() {
+            //todo 汽车速度策略
+            function speed() {
+                return 60+Math.random()*40;
+            }
             var startPoint = new AMap.LngLat(this.lng+Math.random()*this.variance, this.lat+Math.random()*this.variance);
             var endPoint = new AMap.LngLat(this.lng+Math.random()*this.variance, this.lat+Math.random()*this.variance);
             var map = this.map;
@@ -104,9 +116,13 @@
                 offset: new AMap.Pixel(-13, -26),
             });
 
+            //todo id多线程下重复？同时，考虑通过标记展示汽车id
+            let car = new Car(marker, this.id, speed());
+            this.id = this.id + 1;
+
             driving.search(startPoint, endPoint, function(status, result) {
                 // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
-                if (status == 'complete') {
+                if (status === 'complete') {
                     //log.success('绘制驾车路线完成');
                     var path = parse(result.routes[0]);
 
@@ -124,11 +140,11 @@
 
                         marker.moveAlong(path, {
                                 // 每一段的速度
-                                speed: 80,
+                                speed: car.speed,
                             });
 
                         marker.on('click', function() {
-                            log.success(marker.getPosition());}
+                            log.success(car.id);}
                         );
 
 
@@ -148,9 +164,20 @@
                 }
             });
 
-            this.drivings.push(driving);
-            this.markers.push(marker);
-            this.destinations.push(endPoint);
+            this.cars.push(car);
+
+            const cars = this.cars;
+            //todo 通过位置判定是否触发可信判断
+            setInterval(function check_for_distance() {
+                for (let i = 0; i < cars.length; i++) {
+                    if (cars[i].id !== car.id) {
+                        var p_other = cars[i].marker.getPosition();
+                        var p = car.marker.getPosition();
+                        if (Math.pow(p_other.getLng()-p.getLng(), 2) + Math.pow(p_other.getLat()-p.getLat(), 2) <= 0.001) {
+                        }
+                    }
+                }
+            }, 1000);
         }
 
 
