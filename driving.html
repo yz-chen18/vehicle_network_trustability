@@ -43,29 +43,27 @@
 <div id="container"></div>
 <div id="panel"></div>
 <script type="text/javascript">
-
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
- function parse(route) {
-    var path = []
-
-    for (var i = 0, l = route.steps.length; i < l; i++) {
-        var step = route.steps[i]
-
-        for (var j = 0, n = step.path.length; j < n; j++) {
-            path.push(step.path[j])
-        }
+    function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
     }
 
-    return path
-}
+    function parse(route) {
+        var path = []
 
-  function generate_ride(map, startPoint, endPoint) {
+        for (var i = 0, l = route.steps.length; i < l; i++) {
+            var step = route.steps[i]
+
+            for (var j = 0, n = step.path.length; j < n; j++) {
+                path.push(step.path[j])
+            }
+        }
+
+        return path
+    }
+
+    function generate_ride(map, startPoint, endPoint) {
     //构造路线导航类
-    
+
     var driving = new AMap.Driving({
         map: map,
         //panel: "panel"
@@ -111,6 +109,9 @@ function sleep(ms) {
                     log.success('Arrive');
                     marker.hide();
                     driving.clear();
+                    var startPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
+                    var endPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
+                    generate_ride(map, startPoint, endPoint);
                 });
 
                 marker.off('click', function() {});
@@ -123,7 +124,7 @@ function sleep(ms) {
     });
 
     return [driving, marker];
-  }
+    }
 
     //基本地图加载
     var lng = 116.397428;
@@ -133,21 +134,52 @@ function sleep(ms) {
         center: [lng, lat],//地图中心点
         zoom: 13 //地图显示的缩放级别
     });
-    
+
+    // singleton，单例模式，把markers drivings destinations封装起来，同时把生成路径封装成一个方法
     var markers = [];
     var drivings = [];
     var destinations = [];
-    for (i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
+        // 封装方法
         var startPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
         var endPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
         var res = generate_ride(map, startPoint, endPoint);
         destinations.push(endPoint);
         drivings.push(res[0]);
         markers.push(res[1]);
+        // 封装方法
     }
 
-    var i = 0;
-    window.setInterval(function f() {console.log(markers)}, 2000);
+    var thresh = 0.00001;
+    window.setInterval(function check_for_arrivals() {
+        var removals = [];
+        var deltas = [];
+        for (var i = 3; i >= 0; i--) {
+            var startLngLat = markers[i].getPosition();
+            var endLngLat = destinations[i];
+            
+            if (Math.abs(startLngLat.getLng()-endLngLat.getLng()) <= thresh && Math.abs(startLngLat.getLat()-endLngLat.getLat()) <= thresh) {
+                // 封装方法
+                var startPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
+                var endPoint = new AMap.LngLat(lng+Math.random()*0.01, lat+Math.random()*0.01);
+                var res = generate_ride(map, startPoint, endPoint);
+                destinations.push(endPoint);
+                drivings.push(res[0]);
+                markers.push(res[1]);
+                // 封装方法
+                removals.push(i);
+            }
+
+            deltas.push(Math.abs(startLngLat.getLng()-endLngLat.getLng()));
+        }
+        for (var i = 0; i < removals.length; i++) {
+            markers.splice(removals[i], 1);
+        }
+
+        console.log(removals);
+        console.log(deltas);
+    }, 1000);
+    //window.setInterval(function f() {console.log(markers)}, 2000);
 </script>
 </body>
 </html>
