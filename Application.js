@@ -30,10 +30,11 @@ class Application {
         var p = this;
         //构造路线导航类
         var driving = new AMap.Driving({
-            map: map,
+            //map: map,
             autoFitView: false,
             showTraffic: false,
             hideMarkers: true,
+            //isOutline: false,
             //panel: "panel"
         });
         // 根据起终点经纬度规划驾车导航路线
@@ -77,11 +78,16 @@ class Application {
                     car.marker.on('click', function() {
                         log.success(car.id);
                         if (car.infoWindow == null) {
-                            car.infoWindow = new AMap.InfoWindow({
-                                content: car.marker.getPosition(),
-                            });
+                            car.infoWindow = new AdvancedInfoWindow(map, path);
+                            car.infoWindow.setContent(car.marker.getPosition());
+                            car.infoWindow.setPosition(car.marker.getPosition());
                         }
+                        car.infoWindow.on('close', function () {
+                            map.remove(car.infoWindow.route);
+                            car.infoWindow = null;
+                        })
                         car.infoWindow.open(map, car.marker.getPosition());
+                        car.infoWindow.draw_route(map, path);
                     });
 
 
@@ -96,7 +102,10 @@ class Application {
                                 break;
                             }
                         }
-                        car.infoWindow.close();
+                        if (car.infoWindow != null) {
+                            car.infoWindow.close();
+                            map.remove(car.infoWindow.route);
+                        }
                     });
 
                     car.marker.off('click', function() {});
@@ -117,7 +126,8 @@ class Application {
                 if (cars[i].id !== car.id) {
                     var p_other = cars[i].marker.getPosition();
                     var p = car.marker.getPosition();
-                    if (Math.pow(p_other.getLng()-p.getLng(), 2) + Math.pow(p_other.getLat()-p.getLat(), 2) <= 0.001) {
+                    if (distance(p_other, p) <= 0.001) {
+
                     }
                 }
             }
