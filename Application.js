@@ -78,9 +78,8 @@ class Application {
                     car.marker.on('click', function() {
                         log.success(car.id);
                         if (car.infoWindow == null) {
-                            car.infoWindow = new AdvancedInfoWindow(map, path);
-                            car.infoWindow.setContent(car.marker.getPosition());
-                            car.infoWindow.setPosition(car.marker.getPosition());
+                            car.infoWindow = new AdvancedInfoWindow(map, path, car.marker.getPosition(),
+                                    car.marker.getPosition());
                         }
                         car.infoWindow.on('close', function () {
                             map.remove(car.infoWindow.route);
@@ -105,6 +104,7 @@ class Application {
                         if (car.infoWindow != null) {
                             car.infoWindow.close();
                             map.remove(car.infoWindow.route);
+                            car.infoWindow = null;
                         }
                     });
 

@@ -1,6 +1,9 @@
 class AdvancedInfoWindow extends AMap.InfoWindow{
-    constructor(map, path) {
-        super();
+    constructor(map, path, content, position) {
+        super({
+            content: content,
+            position: position,
+        });
         this.map = map;
         this.path = path;
         this.route = null;
