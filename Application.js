@@ -2,7 +2,6 @@ class Application {
     constructor(vehicle_num, lng, lat, variance) {
         this.vehicle_num = vehicle_num;
         this.cars = [];
-        this.timers = [];
         this.lng = lng;
         this.lat = lat;
         this.variance = variance;
@@ -63,28 +62,44 @@ class Application {
                         strokeWeight: 0,      //线宽
                     });
 
-                    marker.on('moving', function (e) {
+                    car.marker.on('moving', function (e) {
                         passedPolyline.setPath(e.passedPath);
+                        if (car.infoWindow != null) {
+                            car.infoWindow.setPosition(car.marker.getPosition());
+                        }
                     });
 
-                    marker.moveAlong(path, {
+                    car.marker.moveAlong(path, {
                         // 每一段的速度
                         speed: car.speed,
                     });
 
-                    marker.on('click', function() {
-                        log.success(car.id);}
-                    );
-
-
-                    marker.on('movealong', function() {
-                        //log.success('Arrive');
-                        marker.hide();
-                        driving.clear();
-                        p.generate_ride();
+                    car.marker.on('click', function() {
+                        log.success(car.id);
+                        if (car.infoWindow == null) {
+                            car.infoWindow = new AMap.InfoWindow({
+                                content: car.marker.getPosition(),
+                            });
+                        }
+                        car.infoWindow.open(map, car.marker.getPosition());
                     });
 
-                    marker.off('click', function() {});
+
+                    car.marker.on('movealong', function() {
+                        //log.success('Arrive');
+                        car.marker.hide();
+                        driving.clear();
+                        p.generate_ride();
+                        for (let i=0; i < cars.length; i++) {
+                            if (cars[i] === car) {
+                                cars.splice(i, 1);
+                                break;
+                            }
+                        }
+                        car.infoWindow.close();
+                    });
+
+                    car.marker.off('click', function() {});
 
                 });
 
