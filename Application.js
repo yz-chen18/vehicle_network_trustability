@@ -5,7 +5,7 @@ class Application {
         this.lng = lng;
         this.lat = lat;
         this.variance = variance;
-        this.id = 0;
+        this.id = 1;
         this.map = new AMap.Map("container", {
             resizeEnable: true,
             center: [lng, lat],//地图中心点
@@ -44,23 +44,43 @@ class Application {
             icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
             offset: new AMap.Pixel(-13, -26),
         });
+        let sendInterval = setInterval(function send() {
+            for (let i = 0; i < cars.length; i++) {
+                if (cars[i].id !== car.id) {
+                    let dist = distance(cars[i].marker.getPosition(), car.marker.getPosition());
+                    if (dist < 0.001) {
+                        car.send_message(cars[i]);
+                    }
+                }
+            }
+        }, 1000);
 
         //todo id多线程下重复？同时，考虑通过标记展示汽车id
         let car = new Car(marker, this.id, speed());
+        car.marker.setLabel({
+            offset: new AMap.Pixel(0,0),
+            content: this.id,
+            direction: 'center',
+        })
         this.id = this.id + 1;
 
         driving.search(startPoint, endPoint, function(status, result) {
             // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
             if (status === 'complete') {
                 //log.success('绘制驾车路线完成');
-                var path = parse(result.routes[0]);
+                let path = parse(result.routes[0]);
 
                 AMap.plugin('AMap.MoveAnimation', function(){
 
-                    var passedPolyline = new AMap.Polyline({
+                    let passedPolyline = new AMap.Polyline({
                         map: map,
                         strokeColor: "FF0000",  //线颜色
                         strokeWeight: 0,      //线宽
+                    });
+
+                    car.marker.moveAlong(path, {
+                        // 每一段的速度
+                        speed: car.speed,
                     });
 
                     car.marker.on('moving', function (e) {
@@ -68,11 +88,6 @@ class Application {
                         if (car.infoWindow != null) {
                             car.infoWindow.setPosition(car.marker.getPosition());
                         }
-                    });
-
-                    car.marker.moveAlong(path, {
-                        // 每一段的速度
-                        speed: car.speed,
                     });
 
                     car.marker.on('click', function() {
@@ -92,11 +107,12 @@ class Application {
 
                     car.marker.on('movealong', function() {
                         //log.success('Arrive');
+                        clearInterval(sendInterval);
                         car.marker.hide();
                         driving.clear();
                         p.generate_ride();
                         for (let i=0; i < cars.length; i++) {
-                            if (cars[i] === car) {
+                            if (cars[i].id === car.id) {
                                 cars.splice(i, 1);
                                 break;
                             }
@@ -109,6 +125,8 @@ class Application {
                     });
 
                     car.marker.off('click', function() {});
+
+                    car.marker.on('receive', receive_event_handle);
 
                 });
 
@@ -124,8 +142,8 @@ class Application {
         setInterval(function check_for_distance() {
             for (let i = 0; i < cars.length; i++) {
                 if (cars[i].id !== car.id) {
-                    var p_other = cars[i].marker.getPosition();
-                    var p = car.marker.getPosition();
+                    let p_other = cars[i].marker.getPosition();
+                    let p = car.marker.getPosition();
                     if (distance(p_other, p) <= 0.001) {
 
                     }
