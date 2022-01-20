@@ -44,16 +44,6 @@ class Application {
             icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
             offset: new AMap.Pixel(-13, -26),
         });
-        let sendInterval = setInterval(function send() {
-            for (let i = 0; i < cars.length; i++) {
-                if (cars[i].id !== car.id) {
-                    let dist = distance(cars[i].marker.getPosition(), car.marker.getPosition());
-                    if (dist < 0.001) {
-                        car.send_message(cars[i]);
-                    }
-                }
-            }
-        }, 1000);
 
         //todo id多线程下重复？同时，考虑通过标记展示汽车id
         let car = new Car(marker, this.id, speed());
@@ -63,6 +53,17 @@ class Application {
             direction: 'center',
         })
         this.id = this.id + 1;
+
+        let sendInterval = setInterval(function send() {
+            for (let i = 0; i < cars.length; i++) {
+                if (cars[i].id !== car.id) {
+                    let dist = distance(cars[i].marker.getPosition(), car.marker.getPosition());
+                    if (dist < 0.001) {
+                        car.send_message(cars[i]);
+                    }
+                }
+            }
+        }, car.send_frequency);
 
         driving.search(startPoint, endPoint, function(status, result) {
             // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
