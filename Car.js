@@ -1,6 +1,6 @@
 class Car {
-    constructor(marker, id, speed, is_trustable=true, needed_amount = 10, trust_thresh = 0.6,
-                send_frequency = 100) {
+    constructor(marker, id, speed, is_trustable=true, needed_amount = 20, trust_thresh = 0.6,
+                send_frequency = 50) {
         this.marker = marker;
         this.id = id;
         this.speed = speed;

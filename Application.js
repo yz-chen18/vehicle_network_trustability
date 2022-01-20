@@ -38,15 +38,17 @@ class Application {
             //panel: "panel"
         });
         // 根据起终点经纬度规划驾车导航路线
+
+        let is_trustable = (Math.random() > 0.2);
         var marker = new AMap.Marker({
             map: map,
             position: startPoint,
-            icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
+            icon: (is_trustable) ? "./static/real_car.png" : "./static/fake_car.png",
             offset: new AMap.Pixel(-13, -26),
         });
 
         //todo id多线程下重复？同时，考虑通过标记展示汽车id
-        let car = new Car(marker, this.id, speed());
+        let car = new Car(marker, this.id, speed(), is_trustable);
         car.marker.setLabel({
             offset: new AMap.Pixel(0,0),
             content: this.id,
@@ -88,6 +90,11 @@ class Application {
                         passedPolyline.setPath(e.passedPath);
                         if (car.infoWindow != null) {
                             car.infoWindow.setPosition(car.marker.getPosition());
+                            let content = "trusted:" + Object.keys(car.trusted_cars) + "\n"
+                                + "untrusted: " + Object.keys(car.untrusted_cars);
+                            if (content !== car.infoWindow.getContent()) {
+                                car.infoWindow.setContent(content);
+                            }
                         }
                     });
 
