@@ -39,7 +39,7 @@ class Application {
         });
         // 根据起终点经纬度规划驾车导航路线
 
-        let is_trustable = (Math.random() > 0.2);
+        let is_trustable = (Math.random() > 0);
         var marker = new AMap.Marker({
             map: map,
             position: startPoint,
@@ -90,8 +90,7 @@ class Application {
                         passedPolyline.setPath(e.passedPath);
                         if (car.infoWindow != null) {
                             car.infoWindow.setPosition(car.marker.getPosition());
-                            let content = "trusted:" + Object.keys(car.trusted_cars) + "\n"
-                                + "untrusted: " + Object.keys(car.untrusted_cars);
+                            let content = car.trusted_carLinklist;
                             if (content !== car.infoWindow.getContent()) {
                                 car.infoWindow.setContent(content);
                             }
@@ -100,6 +99,7 @@ class Application {
 
                     car.marker.on('click', function() {
                         log.success(car.id);
+                        console.log(car.trusted_carLinklist.toString())
                         if (car.infoWindow == null) {
                             car.infoWindow = new AdvancedInfoWindow(map, path, car.marker.getPosition(),
                                     car.marker.getPosition());
@@ -132,10 +132,9 @@ class Application {
                         }
                     });
 
-                    car.marker.off('click', function() {});
+                    car.marker.on('receive_data', receive_data_event_handle);
 
-                    car.marker.on('receive', receive_event_handle);
-
+                    car.marker.on('receive_linklist', receive_linklist_event_handle)
                 });
 
             } else {
