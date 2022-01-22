@@ -48,10 +48,10 @@ class Car {
             let algo = new TrustValueAlgo(this.unlabeled_cars[sender.id][1], this.unlabeled_cars[sender.id][0]);
             let trust_value = algo.get_trust_value();
             if (trust_value > this.trust_thresh) {
-                //todo 修改为交换可信链表
+                //todo 检查执行顺序
                 this.trusted_carLinklist.insert_node(sender.id, trust_value);
                 console.log('Car.calculate_trust_value:', sender);
-                sender.marker.emit('receive_data', {carLinklist: this.trusted_carLinklist, receiver: sender});
+                sender.marker.emit('receive_linklist', {carLinklist: this.trusted_carLinklist, receiver: sender});
             } else {
                 this.untrusted_cars[sender.id] = trust_value;
             }

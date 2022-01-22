@@ -90,7 +90,7 @@ class Application {
                         passedPolyline.setPath(e.passedPath);
                         if (car.infoWindow != null) {
                             car.infoWindow.setPosition(car.marker.getPosition());
-                            let content = car.trusted_carLinklist;
+                            let content = car.trusted_carLinklist.toString();
                             if (content !== car.infoWindow.getContent()) {
                                 car.infoWindow.setContent(content);
                             }
@@ -99,7 +99,7 @@ class Application {
 
                     car.marker.on('click', function() {
                         log.success(car.id);
-                        console.log(car.trusted_carLinklist.toString())
+                        console.warn(car.trusted_carLinklist.toString())
                         if (car.infoWindow == null) {
                             car.infoWindow = new AdvancedInfoWindow(map, path, car.marker.getPosition(),
                                     car.marker.getPosition());

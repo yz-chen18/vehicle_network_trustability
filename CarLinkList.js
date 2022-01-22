@@ -26,11 +26,11 @@ class CarLinkList {
     insert_linklist(carLinkList) {
         // 跳过头节点
 
-        let curNode = carLinkList.next;
+        let curNode = carLinkList.head.next;
         let subHead = this.tail;
 
+        console.log('CarLinkList.insert_linklist:', carLinkList, curNode);
         if (curNode != null) {
-            console.log('CarLinkList.insert_linklist:');
             subHead.subchain = new CarNode(curNode.id, curNode.trust_value, curNode.insert_time);
             subHead = subHead.subchain;
             curNode = curNode.next;
