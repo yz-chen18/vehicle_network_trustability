@@ -17,15 +17,16 @@ class CarLinkList {
     }
 
     insert_node(id, trust_value) {
-        console.log('CarLinkList.insert_node:');
+        console.warn(this.head.id, 'before insert_node', JSON.stringify(this.toString()), 'inserted id:', id);
         let carNode = new CarNode(id, trust_value, new Date().getTime());
+        console.warn(this.head.id, 'mid insert_node', JSON.stringify(this.toString()), JSON.stringify(carNode));
         this.tail.next = carNode;
         this.tail = carNode;
+        console.warn(this.head.id, 'after insert_node', JSON.stringify(this.toString()), 'inserted id:', id);
     }
 
     insert_linklist(carLinkList) {
         // 跳过头节点
-
         let curNode = carLinkList.head.next;
         let subHead = this.tail;
 

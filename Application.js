@@ -134,7 +134,7 @@ class Application {
 
                     car.marker.on('receive_data', receive_data_event_handle);
 
-                    car.marker.on('receive_linklist', receive_linklist_event_handle)
+                    // car.marker.on('receive_linklist', receive_linklist_event_handle)
                 });
 
             } else {
