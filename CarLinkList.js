@@ -7,7 +7,7 @@ class CarLinkList {
     lookup_main(id) {
         let head = this.head;
         while (head.next != null) {
-            if (head.id === id) {
+            if (head.next.id === id) {
                 return true;
             }
             head = head.next;
@@ -17,12 +17,9 @@ class CarLinkList {
     }
 
     insert_node(id, trust_value) {
-        console.warn(this.head.id, 'before insert_node', JSON.stringify(this.toString()), 'inserted id:', id);
         let carNode = new CarNode(id, trust_value, new Date().getTime());
-        console.warn(this.head.id, 'mid insert_node', JSON.stringify(this.toString()), JSON.stringify(carNode));
         this.tail.next = carNode;
         this.tail = carNode;
-        console.warn(this.head.id, 'after insert_node', JSON.stringify(this.toString()), 'inserted id:', id);
     }
 
     insert_linklist(carLinkList) {
