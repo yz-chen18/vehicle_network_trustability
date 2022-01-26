@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CarLinkListTest</title>
+</head>
+<body>
+
+</body>
+<script src="CarNode.js"></script>
+<script src="CarLinkList.js"></script>
+
+<script type="text/javascript">
+    let carLinkList1 = new CarLinkList(1, 1);
+    let carLinkList2 = new CarLinkList(2, 1);
+    let carLinkList3 = new CarLinkList(3, 1);
+    let carLinkList4 = new CarLinkList(4, 1);
+
+    // car1 met car2
+    carLinkList1.insert_node(2, 2.0);
+    carLinkList2.insert_node(1, 1.0);
+    carLinkList1.insert_linklist(carLinkList2);
+    carLinkList2.insert_linklist(carLinkList1);
+
+    console.log(carLinkList1, carLinkList1.toString(), JSON.stringify(carLinkList1.toString()));
+
+    // car3 met car4
+    carLinkList3.insert_node(4, 4.0);
+    carLinkList4.insert_node(3, 3.0);
+    carLinkList3.insert_linklist(carLinkList4);
+    carLinkList4.insert_linklist(carLinkList3);
+
+    // car1 met car3
+    carLinkList1.insert_node(3, 3.0);
+    carLinkList3.insert_node(1, 1.0);
+    carLinkList1.insert_linklist(carLinkList3);
+    carLinkList3.insert_linklist(carLinkList1);
+    console.log(carLinkList1, carLinkList1.toString(), JSON.stringify(carLinkList1.toString()));
+</script>
+</html>

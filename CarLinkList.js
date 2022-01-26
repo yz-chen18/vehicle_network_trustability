@@ -1,5 +1,6 @@
 class CarLinkList {
     constructor(id, trust_value) {
+        // dummy head, 指向自身
         this.head = new CarNode(id, trust_value, new Date().getTime());
         this.tail = this.head;
     }
@@ -27,7 +28,7 @@ class CarLinkList {
         let curNode = carLinkList.head.next;
         let subHead = this.tail;
 
-        console.log('CarLinkList.insert_linklist:', carLinkList, curNode);
+        //console.log('CarLinkList.insert_linklist:', carLinkList, curNode);
         if (curNode != null) {
             subHead.subchain = new CarNode(curNode.id, curNode.trust_value, curNode.insert_time);
             subHead = subHead.subchain;
@@ -56,7 +57,6 @@ class CarLinkList {
         while (head.next != null) {
             s[head.next.id] = [];
             let subchain = head.next.subchain;
-            console.log('subchain', subchain);
             while (subchain != null) {
                 s[head.next.id].push(subchain.id);
                 subchain = subchain.next;
