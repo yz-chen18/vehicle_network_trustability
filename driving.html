@@ -46,18 +46,21 @@
 <script src="Car.js"></script>
 <script src="Utils.js"></script>
 <script src="AdvancedInfoWindow.js"></script>
-<script src="Events.js"></script>
+<script src="Handler.js"></script>
 <script src="Message.js"></script>
 <script src="Algorithms.js"></script>
 <script src="CarNode.js"></script>
 <script src="CarLinkList.js"></script>
+<script src="Switcher.js"></script>
+<script src="Event.js"></script>
 
 <script type="text/javascript">
     //基本地图加载
     var lng = 116.397428;
     var lat = 39.90923;
-    
-    let application = new Application(2, lng, lat, 0.001);
+
+    let switcher = new Switcher();
+    let application = new Application(6, lng, lat, 0.001);
     application.init();
     //window.setInterval(function f() {console.log(markers)}, 2000);
 </script>

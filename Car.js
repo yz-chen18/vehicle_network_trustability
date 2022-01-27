@@ -14,8 +14,10 @@ class Car {
         this.send_frequency = send_frequency;
         this.self_real_num = 0;
         this.self_fake_num = 0;
-        this.other_trust_value_buffer = new Float32Array(new ArrayBuffer(4));
-        this.self_trust_value_buffer = new Float32Array(new ArrayBuffer(4));
+        this.other_trust_value_buffer = 0.0;
+        this.other_selftrust_value_buffer = 0.0;
+        this.other_linklist_buffer = null;
+        this.timer = 0;
     }
 
     // p for the possibility of generating reliable data, p must gt 0
@@ -50,6 +52,7 @@ class Car {
 
     }
 
+    // 通过他车发送的信息计算他车的信任值，sender为他车
     calculate_trust_value(message, sender) {
         this.timer += 1;
         if (!(sender.id in this.unlabeled_cars)) {
@@ -60,17 +63,23 @@ class Car {
         let fake_data_num = this.unlabeled_cars[sender.id][0];
         if ((real_data_num + fake_data_num  === this.needed_amount) && (sender.id in this.unlabeled_cars)
             && !(this.trusted_carLinklist.lookup_main(sender.id))) {
-            delete this.unlabeled_cars[sender.id];
             let algo = new TrustValueAlgo(real_data_num, fake_data_num);
             let trust_value = algo.get_trust_value();
             let self_algo = new TrustValueAlgo(this.self_real_num, this.self_fake_num);
             let self_trust_value = self_algo.get_trust_value();
             this.other_trust_value_buffer = trust_value;
-            this.self_trust_value_buffer = self_trust_value;
+            sender.other_selftrust_value_buffer = self_trust_value;
 
             //todo 存在竞争
             let p = this;
-            setTimeout(function () {sender.marker.emit('receive_self_trust_value', {sender: p, receiver: sender});}, 100);
+            let token = new Token('calculate_trust_value', new Set([this.marker, sender.marker]),
+                [this.id, sender.id].sort());
+            let events = [];
+            events.push([this.marker, new Event('receive_self_trust_value', {sender: sender, receiver: p})]);
+            events.push([sender.marker, new Event('receive_self_trust_value', {sender: p, receiver: sender})]);
+            // events[sender.marker] = new Event('receive_self_trust_value', {sender: p, receiver: sender});
+            switcher.put(token, events);
+            // setTimeout(function () {sender.marker.emit('receive_self_trust_value', {sender: p, receiver: sender});}, 100);
 
             /*
             if (trust_value > this.trust_thresh) {
@@ -83,7 +92,9 @@ class Car {
                 this.untrusted_cars[sender.id] = trust_value;
             }*/
 
-        } else {
+        }
+
+        if (sender.id in this.unlabeled_cars) {
             this.unlabeled_cars[sender.id][message.data] += 1;
         }
     }
