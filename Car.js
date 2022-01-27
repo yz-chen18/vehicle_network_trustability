@@ -12,8 +12,10 @@ class Car {
         this.needed_amount = needed_amount;
         this.trust_thresh = trust_thresh;
         this.send_frequency = send_frequency;
-        this.timer = 0;
-        this.sab = new Int32Array(new ArrayBuffer(4));
+        this.self_real_num = 0;
+        this.self_fake_num = 0;
+        this.other_trust_value_buffer = new Float32Array(new ArrayBuffer(4));
+        this.self_trust_value_buffer = new Float32Array(new ArrayBuffer(4));
     }
 
     // p for the possibility of generating reliable data, p must gt 0
@@ -36,6 +38,11 @@ class Car {
     // car为接收方
     send_message(car) {
         let message = new Message(this.id, this.generate_data());
+        if (message.data) {
+            this.self_real_num += 1;
+        } else {
+            this.self_fake_num += 1;
+        }
         car.marker.emit('receive_data', {message: message, receiver: car, sender: this});
     }
 
@@ -56,8 +63,17 @@ class Car {
             delete this.unlabeled_cars[sender.id];
             let algo = new TrustValueAlgo(real_data_num, fake_data_num);
             let trust_value = algo.get_trust_value();
+            let self_algo = new TrustValueAlgo(this.self_real_num, this.self_fake_num);
+            let self_trust_value = self_algo.get_trust_value();
+            this.other_trust_value_buffer = trust_value;
+            this.self_trust_value_buffer = self_trust_value;
+
+            //todo 存在竞争
+            let p = this;
+            setTimeout(function () {sender.marker.emit('receive_self_trust_value', {sender: p, receiver: sender});}, 100);
+
+            /*
             if (trust_value > this.trust_thresh) {
-                //todo 检查执行顺序
                 console.warn(this.id, 'before insert_node', this.trusted_carLinklist, JSON.stringify(this.trusted_carLinklist.toString()),
                     'inserted id:', sender.id);
                 this.trusted_carLinklist.insert_node(sender.id, trust_value);
@@ -65,7 +81,8 @@ class Car {
                 sender.marker.emit('receive_linklist', {carLinklist: this.trusted_carLinklist, receiver: sender});
             } else {
                 this.untrusted_cars[sender.id] = trust_value;
-            }
+            }*/
+
         } else {
             this.unlabeled_cars[sender.id][message.data] += 1;
         }
