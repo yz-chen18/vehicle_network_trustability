@@ -9,20 +9,23 @@ class CarLinkList {
         let head = this.head;
         while (head.next != null) {
             if (head.next.id === id) {
-                return true;
+                return head.next;
             }
             head = head.next;
         }
 
-        return false;
+        return null;
     }
 
+    // 创建主链单元
     insert_node(id, trust_value) {
-        let carNode = new CarNode(id, trust_value, new Date().getTime());
+        // 主链单元信任值需要衰减
+        let carNode = new CarNode(id, trust_value, new Date().getTime(), true, 0.9, 2000);
         this.tail.next = carNode;
         this.tail = carNode;
     }
 
+    // 创建子链单元
     insert_linklist(carLinkList) {
         // 跳过头节点
         let curNode = carLinkList.head.next;
@@ -30,6 +33,7 @@ class CarLinkList {
 
         //console.log('CarLinkList.insert_linklist:', carLinkList, curNode);
         if (curNode != null) {
+            // 子链单元信任值”不“需要衰减
             subHead.subchain = new CarNode(curNode.id, curNode.trust_value, curNode.insert_time);
             subHead = subHead.subchain;
             curNode = curNode.next;

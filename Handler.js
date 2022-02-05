@@ -1,7 +1,9 @@
 function receive_data_event_handle(e) {
     //console.log('Events.receive_data_event_handle:', e);
-    if (e.receiver.trusted_carLinklist.lookup_main(e.sender.id)) {
+    let carNode = e.receiver.trusted_carLinklist.lookup_main((e.sender.id));
+    if (carNode != null) {
         //console.log("trusted::", e.car.trusted_cars[e.message.id]);
+        carNode.retiming();
     } else if (e.sender.id in e.receiver.untrusted_cars) {
         //console.log("untrusted::", e.car.untrusted_cars[e.message.id]);
     } else {
@@ -43,4 +45,8 @@ function receive_self_trust_value_handle(e) {
     }
 
     delete receiver.unlabeled_cars[sender.id];
+}
+
+function receive_remove_from_main_handle(e) {
+
 }

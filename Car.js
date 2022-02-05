@@ -61,8 +61,10 @@ class Car {
 
         let real_data_num = this.unlabeled_cars[sender.id][1];
         let fake_data_num = this.unlabeled_cars[sender.id][0];
+
+        // 当数据量足以计算信任值且被计算的车辆不在信任链表中
         if ((real_data_num + fake_data_num  === this.needed_amount) && (sender.id in this.unlabeled_cars)
-            && !(this.trusted_carLinklist.lookup_main(sender.id))) {
+            && this.trusted_carLinklist.lookup_main(sender.id) === null) {
             let algo = new TrustValueAlgo(real_data_num, fake_data_num);
             let trust_value = algo.get_trust_value();
             let self_algo = new TrustValueAlgo(this.self_real_num, this.self_fake_num);
@@ -77,20 +79,7 @@ class Car {
             let events = [];
             events.push([this.marker, new Event('receive_self_trust_value', {sender: sender, receiver: p})]);
             events.push([sender.marker, new Event('receive_self_trust_value', {sender: p, receiver: sender})]);
-            // events[sender.marker] = new Event('receive_self_trust_value', {sender: p, receiver: sender});
             switcher.put(token, events);
-            // setTimeout(function () {sender.marker.emit('receive_self_trust_value', {sender: p, receiver: sender});}, 100);
-
-            /*
-            if (trust_value > this.trust_thresh) {
-                console.warn(this.id, 'before insert_node', this.trusted_carLinklist, JSON.stringify(this.trusted_carLinklist.toString()),
-                    'inserted id:', sender.id);
-                this.trusted_carLinklist.insert_node(sender.id, trust_value);
-                console.warn(this.id, 'after insert_node', this.trusted_carLinklist, JSON.stringify(this.trusted_carLinklist.toString()));
-                sender.marker.emit('receive_linklist', {carLinklist: this.trusted_carLinklist, receiver: sender});
-            } else {
-                this.untrusted_cars[sender.id] = trust_value;
-            }*/
 
         }
 
