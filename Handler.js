@@ -3,7 +3,8 @@ function receive_data_event_handle(e) {
     let carNode = e.receiver.trusted_carLinklist.lookup_main((e.sender.id));
     if (carNode != null) {
         //console.log("trusted::", e.car.trusted_cars[e.message.id]);
-        carNode.retiming();
+        //carNode.retiming();
+        e.receiver.trusted_carLinklist.retiming(carNode);
     } else if (e.sender.id in e.receiver.untrusted_cars) {
         //console.log("untrusted::", e.car.untrusted_cars[e.message.id]);
     } else {
@@ -26,7 +27,7 @@ function receive_self_trust_value_handle(e) {
 
     if (trust_value > receiver.trust_thresh) {
         console.warn(receiver.id, 'before insert_node', receiver.trusted_carLinklist,
-            JSON.stringify(receiver.trusted_carLinklist.toString()), 'inserted id:', sender.id);
+            JSON.stringify(receiver.trusted_carLinklist.toString()), 'inserted id:', sender.id, trust_value);
         receiver.trusted_carLinklist.insert_node(sender.id, trust_value);
         console.warn(receiver.id, 'after insert_node', receiver.trusted_carLinklist,
             JSON.stringify(receiver.trusted_carLinklist.toString()));

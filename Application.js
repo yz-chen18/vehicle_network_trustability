@@ -118,6 +118,14 @@ class Application {
                         clearInterval(sendInterval);
                         car.marker.hide();
                         driving.clear();
+
+                        let head = car.trusted_carLinklist.head;
+
+                        while (head.next != null) {
+                            clearTimeout(head.next.timer);
+                            head = head.next;
+                        }
+
                         p.generate_ride();
                         for (let i=0; i < cars.length; i++) {
                             if (cars[i].id === car.id) {
