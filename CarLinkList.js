@@ -83,7 +83,7 @@ class CarLinkList {
             head = head.next
         }
 
-        return s;
+        return JSON.stringify(s);
     }
 
     retiming(carNode) {
@@ -94,9 +94,9 @@ class CarLinkList {
             if (trust_value > thresh) {
                 p.retiming(carNode);
             } else {
-                console.warn(p.head.id, 'before remove node, removed id', carNode.id, JSON.stringify(p.toString()), p);
+                console.warn(p.head.id, 'before remove node, removed id', carNode.id, p.toString(), p);
                 p.remove_node(carNode.id);
-                console.warn(p.head.id, 'after remove node, removed id', carNode.id, JSON.stringify(p.toString()), p);
+                console.warn(p.head.id, 'after remove node, removed id', carNode.id, p.toString(), p);
             }
         }, 2000);
     }

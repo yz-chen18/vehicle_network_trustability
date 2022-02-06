@@ -14,10 +14,10 @@ function receive_data_event_handle(e) {
 }
 
 function receive_linklist_event_handle(e) {
-    console.warn(e.receiver.id, 'before insert linklist, inserted id', e.sender.id, JSON.stringify(e.receiver.trusted_carLinklist.toString()), e);
+    console.warn(e.receiver.id, 'before insert linklist, inserted id', e.sender.id, e.receiver.trusted_carLinklist.toString(), e);
     let carLinklist = e.sender.trusted_carLinklist;
     e.receiver.trusted_carLinklist.insert_linklist(carLinklist)
-    console.warn(e.receiver.id, 'after insert linklist, inserted id', e.sender.id, JSON.stringify(e.receiver.trusted_carLinklist.toString()), e);
+    console.warn(e.receiver.id, 'after insert linklist, inserted id', e.sender.id, e.receiver.trusted_carLinklist.toString(), e);
 }
 
 function receive_self_trust_value_handle(e) {
@@ -27,10 +27,10 @@ function receive_self_trust_value_handle(e) {
 
     if (trust_value > receiver.trust_thresh) {
         console.warn(receiver.id, 'before insert_node', receiver.trusted_carLinklist,
-            JSON.stringify(receiver.trusted_carLinklist.toString()), 'inserted id:', sender.id, trust_value);
+            receiver.trusted_carLinklist.toString(), 'inserted id:', sender.id, trust_value);
         receiver.trusted_carLinklist.insert_node(sender.id, trust_value);
         console.warn(receiver.id, 'after insert_node', receiver.trusted_carLinklist,
-            JSON.stringify(receiver.trusted_carLinklist.toString()));
+            receiver.trusted_carLinklist.toString());
 
 
         let token = new Token('receive_self_trust_value_handle', new Set([receiver.marker, sender.marker]),
