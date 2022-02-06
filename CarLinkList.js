@@ -28,7 +28,6 @@ class CarLinkList {
 
     remove_node_from_main(id) {
         let head = this.head;
-        console.warn('debug', head, this);
         while (head.next != null) {
             if (head.next.id === id) {
                 console.warn('debug', head, this, 'removed id:', id);
@@ -37,11 +36,15 @@ class CarLinkList {
                     this.tail = head;
                 }
                 head.next = head.next.next;
-                //todo 向其余节点发送删除的消息通知
-                let head = this.head;
+
+                head = this.head;
                 while (head.next != null) {
-                    head.next.car.marker.emit('receive_remove_from_sub', {receiver: head.next.car, sender: this.head.car,
-                        removed_id: id})
+                    // 模拟车辆删除主链单元后向”通信范围内的“其他车辆发出消息通知
+                    if (distance(head.next.car.marker.getPosition(), this.head.car.marker.getPosition()) < COMMUNICATION_RANGE) {
+                        head.next.car.marker.emit('receive_remove_from_sub', {receiver: head.next.car, sender: this.head.car,
+                            removed_id: id})
+                    }
+                    head = head.next;
                 }
                 break;
             }
