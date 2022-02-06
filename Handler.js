@@ -28,7 +28,7 @@ function receive_self_trust_value_handle(e) {
     if (trust_value > receiver.trust_thresh) {
         console.warn(receiver.id, 'before insert_node', receiver.trusted_carLinklist,
             receiver.trusted_carLinklist.toString(), 'inserted id:', sender.id, trust_value);
-        receiver.trusted_carLinklist.insert_node(sender.id, trust_value);
+        receiver.trusted_carLinklist.insert_node(sender.id, trust_value, receiver.trust_thresh);
         console.warn(receiver.id, 'after insert_node', receiver.trusted_carLinklist,
             receiver.trusted_carLinklist.toString());
 

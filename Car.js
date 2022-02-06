@@ -16,7 +16,6 @@ class Car {
         this.self_fake_num = 0;
         this.other_trust_value_buffer = 0.0;
         this.other_selftrust_value_buffer = 0.0;
-        this.other_linklist_buffer = null;
         this.timer = 0;
     }
 
@@ -27,7 +26,7 @@ class Car {
             p = 1;
             // p = Math.random()*0.1 + 0.9;
         } else {
-            p = Math.random()*0.1 + 0.1;
+            p = Math.random()*POSSIBILITY_RANGE + MINIMUM_POSSIBILITY;
         }
         let rand = Math.random()/p;
         if (rand <= 1) {

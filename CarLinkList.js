@@ -18,9 +18,9 @@ class CarLinkList {
     }
 
     // 创建主链单元
-    insert_node(id, trust_value) {
+    insert_node(id, trust_value, trust_thresh) {
         // 主链单元信任值需要衰减
-        let carNode = new CarNode(id, trust_value, new Date().getTime(), 0.9);
+        let carNode = new CarNode(id, trust_value, new Date().getTime(), 0.9, trust_thresh);
         this.tail.next = carNode;
         this.tail = carNode;
         this.retiming(carNode);
@@ -91,7 +91,7 @@ class CarLinkList {
         clearTimeout(carNode.timer);
         carNode.timer = setTimeout(function () {
             let trust_value = carNode.trust_decay();
-            if (trust_value > thresh) {
+            if (trust_value > carNode.trust_thresh) {
                 p.retiming(carNode);
             } else {
                 console.warn(p.head.id, 'before remove node, removed id', carNode.id, p.toString(), p);

@@ -1,11 +1,14 @@
 class Application {
-    constructor(vehicle_num, lng, lat, variance) {
+    constructor(vehicle_num, lng, lat, variance, trust_thresh, send_cycle, needed_amount) {
         this.vehicle_num = vehicle_num;
         this.cars = [];
         this.lng = lng;
         this.lat = lat;
-        this.variance = variance;
+        this.location_variance = variance;
         this.id = 1;
+        this.trust_thresh = trust_thresh;
+        this.send_cycle = send_cycle;
+        this.needed_amount = needed_amount;
         this.map = new AMap.Map("container", {
             resizeEnable: true,
             center: [lng, lat],//地图中心点
@@ -22,10 +25,10 @@ class Application {
     generate_ride() {
         //todo 汽车速度策略
         function speed() {
-            return 60+Math.random()*40;
+            return MINIMUM_SPEED + Math.random() * SPEED_RANGE;
         }
-        var startPoint = new AMap.LngLat(this.lng+Math.random()*this.variance, this.lat+Math.random()*this.variance);
-        var endPoint = new AMap.LngLat(this.lng+Math.random()*this.variance, this.lat+Math.random()*this.variance);
+        var startPoint = new AMap.LngLat(this.lng+Math.random()*this.location_variance, this.lat+Math.random()*this.location_variance);
+        var endPoint = new AMap.LngLat(this.lng+Math.random()*this.location_variance, this.lat+Math.random()*this.location_variance);
         var map = this.map;
         var p = this;
         //构造路线导航类
@@ -47,8 +50,7 @@ class Application {
             offset: new AMap.Pixel(-13, -26),
         });
 
-        //todo id多线程下重复？同时，考虑通过标记展示汽车id
-        let car = new Car(marker, this.id, speed(), is_trustable);
+        let car = new Car(marker, this.id, speed(), is_trustable, this.needed_amount, this.trust_thresh, this.send_cycle);
         car.marker.setLabel({
             offset: new AMap.Pixel(0,0),
             content: this.id,
@@ -60,7 +62,7 @@ class Application {
             for (let i = 0; i < cars.length; i++) {
                 if (cars[i].id !== car.id) {
                     let dist = distance(cars[i].marker.getPosition(), car.marker.getPosition());
-                    if (dist < 0.001) {
+                    if (dist < COMMUNICATION_RANGE) {
                         car.send_message(cars[i]);
                     }
                 }
@@ -163,7 +165,7 @@ class Application {
                 if (cars[i].id !== car.id) {
                     let p_other = cars[i].marker.getPosition();
                     let p = car.marker.getPosition();
-                    if (distance(p_other, p) <= 0.001) {
+                    if (distance(p_other, p) <= COMMUNICATION_RANGE) {
 
                     }
                 }

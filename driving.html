@@ -56,12 +56,22 @@
 
 <script type="text/javascript">
     //基本地图加载
-    var lng = 116.397428;
-    var lat = 39.90923;
+    const LNG = 116.397428; // 经纬度
+    const LAT = 39.90923; // 经纬度
+    const LOCATION_VARIANCE = 0.001 // 经纬度方差
+    const CAR_NUM = 2;
+    const TRUST_THRESH = 0.5;
+    const MINIMUM_SPEED = 60; // 单位 km/h
+    const SPEED_RANGE = 40;
+    const MINIMUM_POSSIBILITY = 0.1; // 虚假车辆发送正确数据的最小概率
+    const POSSIBILITY_RANGE = 0.1;
+    const COMMUNICATION_RANGE = 0.001; // 经纬度距离
+    const MESSAGE_SEND_CYCLE = 5; // 单位毫秒
+    const NEEDED_AMOUNT_FOR_TRUST_VALUE = 20; // 计算信任值所需要的时间周期数(或理解为数据量)
 
     let switcher = new Switcher();
-    let application = new Application(2, lng, lat, 0.001);
-    let thresh = 0.2;
+    let application = new Application(CAR_NUM, LNG, LAT, LOCATION_VARIANCE, TRUST_THRESH,
+        MESSAGE_SEND_CYCLE, NEEDED_AMOUNT_FOR_TRUST_VALUE);
     application.init();
     //window.setInterval(function f() {console.log(markers)}, 2000);
 </script>
