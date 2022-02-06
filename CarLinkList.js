@@ -26,11 +26,12 @@ class CarLinkList {
         this.retiming(carNode);
     }
 
-    remove_node(id) {
+    remove_node_from_main(id) {
         let head = this.head;
-
+        console.warn('debug', head, this);
         while (head.next != null) {
             if (head.next.id === id) {
+                console.warn('debug', head, this, 'removed id:', id);
                 clearTimeout(head.next.timer);
                 if (this.tail === head.next) {
                     this.tail = head;
@@ -41,6 +42,33 @@ class CarLinkList {
                 while (head.next != null) {
                     head.next.car.marker.emit('receive_remove_from_sub', {receiver: head.next.car, sender: this.head.car,
                         removed_id: id})
+                }
+                break;
+            }
+
+            head = head.next;
+        }
+    }
+
+    remove_node_from_sub(main_id, sub_id) {
+        let head = this.head;
+
+        while (head.next != null) {
+            if (head.next.id === main_id) {
+                head = head.next;
+                if (head.subchain != null && head.subchain.id === sub_id) {
+                    head.subchain = head.subchain.next;
+                    break;
+                }
+
+                head = head.subchain;
+                while (head != null && head.next != null) {
+                    if (head.next.id === sub_id) {
+                        head.next = head.next.next;
+                        break;
+                    }
+
+                    head = head.next;
                 }
                 break;
             }
@@ -70,15 +98,6 @@ class CarLinkList {
         }
     }
 
-    remove_from_main_list(id) {
-        let head = this.head;
-        while (head.next != null) {
-            if (head.next.id === id) {
-                head.next = head.next.next;
-            }
-        }
-    }
-
     toString() {
         let head = this.head;
         let s = {};
@@ -104,7 +123,7 @@ class CarLinkList {
                 p.retiming(carNode);
             } else {
                 console.warn(p.head.id, 'before remove node, removed id', carNode.id, p.toString(), p);
-                p.remove_node(carNode.id);
+                p.remove_node_from_main(carNode.id);
                 console.warn(p.head.id, 'after remove node, removed id', carNode.id, p.toString(), p);
             }
         }, 2000);
