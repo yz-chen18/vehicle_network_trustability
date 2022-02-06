@@ -62,6 +62,7 @@ class Car {
         let fake_data_num = this.unlabeled_cars[sender.id][0];
 
         // 当数据量足以计算信任值且被计算的车辆不在信任链表中
+        let res = this.trusted_carLinklist.lookup(sender.id);
         if ((real_data_num + fake_data_num  === this.needed_amount) && (sender.id in this.unlabeled_cars)
             && this.trusted_carLinklist.lookup_main(sender.id) === null) {
             let algo = new TrustValueAlgo(real_data_num, fake_data_num);

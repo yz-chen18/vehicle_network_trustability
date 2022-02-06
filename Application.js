@@ -148,7 +148,9 @@ class Application {
 
                     car.marker.on('receive_self_trust_value', receive_self_trust_value_handle);
 
-                    car.marker.on('receive_remove_from_sub', receive_remove_from_sub_handle);
+                    car.marker.on('receive_remove_update', receive_remove_update_handle);
+
+                    car.marker.on('receive_insert_update', receive_insert_update_handle);
                 });
 
             } else {
