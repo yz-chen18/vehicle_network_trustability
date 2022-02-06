@@ -57,6 +57,7 @@ class CarLinkList {
         // 主链单元信任值需要衰减
         let head = this.head;
 
+        console.warn('insert_node', this.head.id, car.id);
         while (head.next != null) {
             if (distance(head.next.car.marker.getPosition(), this.head.car.marker.getPosition()) < COMMUNICATION_RANGE) {
                 head.next.car.marker.emit('receive_insert_update', {
@@ -76,6 +77,16 @@ class CarLinkList {
     insert_sub_node(main_car, sub_car, trust_value) {
         let head = this.head;
 
+        // 当主链上有被插入车辆时，不再插入子链中
+        while (head.next != null) {
+            if (head.next.id === sub_car.id) {
+                return;
+            }
+
+            head = head.next;
+        }
+
+        head = this.head;
         while (head.next != null) {
             if (head.next.id === main_car.id) {
                 head = head.next;
@@ -155,20 +166,34 @@ class CarLinkList {
     // 创建子链单元
     insert_linklist(carLinkList) {
         // 跳过头节点
+
+        let head = this.head;
+        let mainNodeSet = new Set([]);
+
+        while (head.next != null) {
+            mainNodeSet.add(head.next.id);
+            head = head.next;
+        }
+
         let curNode = carLinkList.head.next;
         let subHead = this.tail;
 
+        let status = 0; // 状态机，在subHead.subchain和sunHead.next间转换
         //console.log('CarLinkList.insert_linklist:', carLinkList, curNode);
-        if (curNode != null) {
-            // 子链单元信任值”不“需要衰减
-            subHead.subchain = new CarNode(curNode.id, curNode.car, curNode.trust_value, curNode.insert_time);
-            subHead = subHead.subchain;
-            curNode = curNode.next;
-        }
 
         while (curNode != null) {
-            subHead.next = new CarNode(curNode.id, curNode.car, curNode.trust_value, curNode.insert_time);
-            subHead = subHead.next;
+            if (status === 0) {
+                if (!mainNodeSet.has(curNode.id)) {
+                    subHead.subchain = new CarNode(curNode.id, curNode.car, curNode.trust_value, curNode.insert_time);
+                    subHead = subHead.subchain;
+                    status = 1;
+                }
+            } else {
+                if (!mainNodeSet.has(curNode.id)) {
+                    subHead.next = new CarNode(curNode.id, curNode.car, curNode.trust_value, curNode.insert_time);
+                    subHead = subHead.next;
+                }
+            }
             curNode = curNode.next;
         }
     }

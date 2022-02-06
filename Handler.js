@@ -21,6 +21,7 @@ function receive_data_event_handle_new(e) {
     if (carLinkListPos === CarLinkListPosEnum.MAIN) {
         e.receiver.trusted_carLinklist.retiming(carNode);
     } else if (carLinkListPos === CarLinkListPosEnum.SUB) {
+        console.warn('before transform', 'transformed id:', e.sender.id, e.receiver.trusted_carLinklist.toString());
         let head = e.receiver.trusted_carLinklist.head;
         let trust_value = 1;
         let tempNode = null;
@@ -38,6 +39,15 @@ function receive_data_event_handle_new(e) {
             head = head.next;
         }
         e.receiver.trusted_carLinklist.insert_node(car, trust_value, trust_thresh);
+        console.warn('after transform', 'transformed id:', e.sender.id, e.receiver.trusted_carLinklist.toString());
+
+        let token = new Token('receive_data_event_handle_new', new Set([e.receiver.marker, e.sender.marker]),
+            [e.receiver.id, e.sender.id].sort());
+        let events = [];
+        events.push([e.sender.marker, new Event('receive_linklist', {sender: e.receiver, receiver: e.sender})]);
+        events.push([e.receiver.marker, new Event('receive_linklist', {sender: e.sender, receiver: e.receiver})]);
+        // events[sender.marker] = new Event('receive_self_trust_value', {sender: p, receiver: sender});
+        switcher.put(token, events);
     } else if (e.sender.id in e.receiver.untrusted_cars) {
         // nothing for now
     } else {
