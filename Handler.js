@@ -28,7 +28,7 @@ function receive_self_trust_value_handle(e) {
     if (trust_value > receiver.trust_thresh) {
         console.warn(receiver.id, 'before insert_node', receiver.trusted_carLinklist,
             receiver.trusted_carLinklist.toString(), 'inserted id:', sender.id, trust_value);
-        receiver.trusted_carLinklist.insert_node(sender.id, trust_value, receiver.trust_thresh);
+        receiver.trusted_carLinklist.insert_node(sender, trust_value, receiver.trust_thresh);
         console.warn(receiver.id, 'after insert_node', receiver.trusted_carLinklist,
             receiver.trusted_carLinklist.toString());
 
@@ -48,6 +48,7 @@ function receive_self_trust_value_handle(e) {
     delete receiver.unlabeled_cars[sender.id];
 }
 
-function receive_remove_from_main_handle(e) {
+//todo 向其余节点发送删除的消息通知
+function receive_remove_from_sub_handle(e) {
 
 }

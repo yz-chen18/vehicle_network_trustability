@@ -1,7 +1,7 @@
 class CarLinkList {
-    constructor(id, trust_value) {
+    constructor(id, car, trust_value) {
         // dummy head, 指向自身
-        this.head = new CarNode(id, trust_value, new Date().getTime());
+        this.head = new CarNode(id, car, trust_value, new Date().getTime());
         this.tail = this.head;
     }
 
@@ -18,9 +18,9 @@ class CarLinkList {
     }
 
     // 创建主链单元
-    insert_node(id, trust_value, trust_thresh) {
+    insert_node(car, trust_value, trust_thresh) {
         // 主链单元信任值需要衰减
-        let carNode = new CarNode(id, trust_value, new Date().getTime(), 0.9, trust_thresh);
+        let carNode = new CarNode(car.id, car, trust_value, new Date().getTime(), 0.9, trust_thresh);
         this.tail.next = carNode;
         this.tail = carNode;
         this.retiming(carNode);
@@ -32,7 +32,16 @@ class CarLinkList {
         while (head.next != null) {
             if (head.next.id === id) {
                 clearTimeout(head.next.timer);
+                if (this.tail === head.next) {
+                    this.tail = head;
+                }
                 head.next = head.next.next;
+                //todo 向其余节点发送删除的消息通知
+                let head = this.head;
+                while (head.next != null) {
+                    head.next.car.marker.emit('receive_remove_from_sub', {receiver: head.next.car, sender: this.head.car,
+                        removed_id: id})
+                }
                 break;
             }
 
@@ -49,13 +58,13 @@ class CarLinkList {
         //console.log('CarLinkList.insert_linklist:', carLinkList, curNode);
         if (curNode != null) {
             // 子链单元信任值”不“需要衰减
-            subHead.subchain = new CarNode(curNode.id, curNode.trust_value, curNode.insert_time);
+            subHead.subchain = new CarNode(curNode.id, curNode.car, curNode.trust_value, curNode.insert_time);
             subHead = subHead.subchain;
             curNode = curNode.next;
         }
 
         while (curNode != null) {
-            subHead.next = new CarNode(curNode.id, curNode.trust_value, curNode.insert_time);
+            subHead.next = new CarNode(curNode.id, curNode.car, curNode.trust_value, curNode.insert_time);
             subHead = subHead.next;
             curNode = curNode.next;
         }

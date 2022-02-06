@@ -1,6 +1,7 @@
 class CarNode {
-    constructor(id, trust_value, insert_time, decay_param = null, trust_thresh = 0.5) {
+    constructor(id, car, trust_value, insert_time, decay_param = null, trust_thresh = 0.5) {
         this.id = id;
+        this.car = car;
         this.trust_value = trust_value;
         this.insert_time = insert_time;
         this.timer = null;

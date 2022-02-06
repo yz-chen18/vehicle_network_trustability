@@ -6,7 +6,7 @@ class Car {
         this.speed = speed;
         this.infoWindow = null;
         this.untrusted_cars = {};
-        this.trusted_carLinklist = new CarLinkList(id, 1, new Date().getTime());
+        this.trusted_carLinklist = new CarLinkList(id, this, 1, new Date().getTime());
         this.unlabeled_cars = {};
         this.is_trustable = is_trustable;
         this.needed_amount = needed_amount;
