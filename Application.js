@@ -103,14 +103,16 @@ class Application {
                         log.success(car.id);
                         console.warn(car.trusted_carLinklist.toString())
                         if (car.infoWindow == null) {
-                            car.infoWindow = new AdvancedInfoWindow(map, path, car.marker.getPosition(),
+                            car.infoWindow = new AdvancedInfoWindow(map, path, car.trusted_carLinklist.toString(),
                                     car.marker.getPosition());
                         }
                         car.infoWindow.on('close', function () {
-                            map.remove(car.infoWindow.route);
-                            car.infoWindow = null;
+                            if (car.infoWindow != null && car.infoWindow.route != null) {
+                                map.remove(car.infoWindow.route);
+                                car.infoWindow = null;
+                            }
                         })
-                        car.infoWindow.open(map, car.marker.getPosition());
+                        car.infoWindow.open(map);
                         car.infoWindow.draw_route(map, path);
                     });
 
@@ -173,5 +175,19 @@ class Application {
                 }
             }
         }, 1000);
+    }
+
+    resumeAnimation() {
+        let cars = this.cars;
+        for (let i = 0; i < cars.length; i++) {
+            cars[i].marker.resumeMove();
+        }
+    }
+
+    pauseAnimation() {
+        let cars = this.cars;
+        for (let i = 0; i < cars.length; i++) {
+            cars[i].marker.pauseMove();
+        }
     }
 }
