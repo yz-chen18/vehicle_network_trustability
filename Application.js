@@ -20,6 +20,7 @@ class Application {
         for (let i = 0; i < this.vehicle_num; i++) {
             this.generate_ride();
         }
+        this.pauseAnimation();
     }
 
     generate_ride() {
@@ -59,11 +60,11 @@ class Application {
         this.id = this.id + 1;
 
         let sendInterval = setInterval(function send() {
-            for (let i = 0; i < cars.length; i++) {
-                if (cars[i].id !== car.id) {
-                    let dist = distance(cars[i].marker.getPosition(), car.marker.getPosition());
+            for (let i = 0; i < p.cars.length; i++) {
+                if (p.cars[i].id !== car.id) {
+                    let dist = distance(p.cars[i].marker.getPosition(), car.marker.getPosition());
                     if (dist < COMMUNICATION_RANGE) {
-                        car.send_message(cars[i]);
+                        car.send_message(p.cars[i]);
                     }
                 }
             }
@@ -161,20 +162,6 @@ class Application {
         });
 
         this.cars.push(car);
-
-        const cars = this.cars;
-        //todo 通过位置判定是否触发可信判断
-        setInterval(function check_for_distance() {
-            for (let i = 0; i < cars.length; i++) {
-                if (cars[i].id !== car.id) {
-                    let p_other = cars[i].marker.getPosition();
-                    let p = car.marker.getPosition();
-                    if (distance(p_other, p) <= COMMUNICATION_RANGE) {
-
-                    }
-                }
-            }
-        }, 1000);
     }
 
     resumeAnimation() {
