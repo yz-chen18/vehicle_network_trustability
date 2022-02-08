@@ -17,7 +17,6 @@ class AdvancedInfoWindow extends AMap.InfoWindow{
     }
 
     draw_route() {
-        console.warn('nnnn');
         this.route = new AMap.Polyline({
             map: this.map,
             path: this.path,

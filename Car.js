@@ -1,6 +1,8 @@
 class Car {
-    constructor(marker, id, speed, is_trustable=true, needed_amount = 20, trust_thresh = 0.6,
+    constructor(map, path, marker, id, speed, is_trustable=true, needed_amount = 20, trust_thresh = 0.6,
                 send_frequency = 5) {
+        this.map = map;
+        this.path = path;
         this.marker = marker;
         this.id = id;
         this.speed = speed;
@@ -17,6 +19,10 @@ class Car {
         this.other_trust_value_buffer = 0.0;
         this.other_selftrust_value_buffer = 0.0;
         this.timer = 0;
+        this.route = null;
+        this.show_network = false;
+        this.main_network = {};
+        this.sub_network = {};
     }
 
     // p for the possibility of generating reliable data, p must gt 0
@@ -86,5 +92,82 @@ class Car {
         if (sender.id in this.unlabeled_cars) {
             this.unlabeled_cars[sender.id][message.data] += 1;
         }
+    }
+
+        draw_route() {
+        this.route = new AMap.Polyline({
+            map: this.map,
+            path: this.path,
+            showDir: true,
+            strokeColor: "#28F",  //线颜色
+            // strokeOpacity: 1,     //线透明度
+            strokeWeight: 6,      //线宽
+            // strokeStyle: "solid"  //线样式
+        });
+    }
+
+    clear_route() {
+        this.map.remove(this.route);
+    }
+
+    draw_network() {
+        let head = this.trusted_carLinklist.head;
+        while (head.next != null) {
+            let path = [this.marker.getPosition(), head.next.car.marker.getPosition()];
+            this.main_network[head.next.car.id] = new AMap.Polyline({
+                map: this.map,
+                path: path,
+                showDir: true,
+                outlineColor: '#ffeeff',
+                borderWeight: 3,
+                strokeColor: "#3366FF",
+                strokeOpacity: 1,
+                strokeWeight: 6,
+                strokeStyle: "solid"  //线样式
+            });
+
+            let subchain = head.next.subchain;
+            this.sub_network[head.next.car.id] = {};
+            while (subchain != null) {
+                if (subchain.car.id !== this.trusted_carLinklist.head.car.id) {
+                    let path = [head.next.car.marker.getPosition(), subchain.car.marker.getPosition()];
+                    this.sub_network[head.next.car.id][subchain.car.id] = new AMap.Polyline({
+                        map: this.map,
+                        path: path,
+                        showDir: true,
+                        outlineColor: '#ffeeff',
+                        borderWeight: 3,
+                        strokeColor: "#FF7F27",
+                        strokeOpacity: 1,
+                        strokeWeight: 6,
+                        strokeStyle: "solid"  //线样式
+                    });
+                }
+                subchain = subchain.next;
+            }
+            head = head.next;
+        }
+    }
+
+    clear_network() {
+        let keys = Object.keys(this.main_network);
+        for (let i = 0; i < keys.length; i++) {
+            this.map.remove(this.main_network[keys[i]]);
+            delete(this.main_network[keys[i]]);
+        }
+
+        keys = Object.keys(this.sub_network);
+        for (let i = 0; i < keys.length; i++) {
+            let sub_keys = Object.keys(this.sub_network[keys[i]]);
+            for (let j = 0; j < sub_keys.length; j++) {
+                this.map.remove(this.sub_network[keys[i]][sub_keys[j]]);
+                delete(this.sub_network[keys[i]][sub_keys[j]]);
+            }
+        }
+    }
+
+    update_network() {
+        this.clear_network();
+        this.draw_network();
     }
 }

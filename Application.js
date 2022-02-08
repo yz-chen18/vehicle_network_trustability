@@ -57,7 +57,7 @@ class Application {
                     offset: new AMap.Pixel(-13, -26),
                 });
 
-                let car = new Car(marker, p.id, speed(), is_trustable, p.needed_amount, p.trust_thresh, p.send_cycle);
+                let car = new Car(p.map, path, marker, p.id, speed(), is_trustable, p.needed_amount, p.trust_thresh, p.send_cycle);
                 car.marker.setLabel({
                     offset: new AMap.Pixel(0,0),
                     content: p.id,
@@ -90,34 +90,24 @@ class Application {
                     });
 
                     car.marker.on('moving', function (e) {
-                        passedPolyline.setPath(e.passedPath);
-                        if (car.infoWindow != null) {
-                            car.infoWindow.setPosition(car.marker.getPosition());
-                            car.infoWindow.update_network();
-                            let content = car.trusted_carLinklist.toString();
-                            if (content !== car.infoWindow.getContent()) {
-                                car.infoWindow.setContent(content);
-                            }
+                        //passedPolyline.setPath(e.passedPath);
+                        if (car.show_network) {
+                            car.update_network();
                         }
                     });
 
                     car.marker.on('click', function() {
                         log.success(car.id);
                         console.warn(car.trusted_carLinklist.toString())
-                        if (car.infoWindow == null) {
-                            car.infoWindow = new AdvancedInfoWindow(map, path, car.trusted_carLinklist.toString(),
-                                    car.marker.getPosition(), car.trusted_carLinklist);
+                        if (car.show_network === false) {
+                            car.draw_route();
+                            car.draw_network();
+                            car.show_network = true;
+                        } else {
+                            car.clear_route();
+                            car.clear_network();
+                            car.show_network = false;
                         }
-                        car.infoWindow.on('close', function () {
-                            if (car.infoWindow != null && car.infoWindow.route != null) {
-                                car.infoWindow.clear_route();
-                                car.infoWindow.clear_network();
-                                car.infoWindow = null;
-                            }
-                        })
-                        car.infoWindow.open();
-                        car.infoWindow.draw_route();
-                        car.infoWindow.draw_network();
                     });
 
 
@@ -141,12 +131,9 @@ class Application {
                                 break;
                             }
                         }
-                        if (car.infoWindow != null) {
-                            car.infoWindow.close();
-                            car.infoWindow.clear_route();
-                            car.infoWindow.clear_network();
-                            car.infoWindow = null;
-                        }
+                        car.clear_route();
+                        car.clear_network();
+                        car.show_network = false;
                     });
 
                     car.marker.on('receive_data', receive_data_event_handle_new);
