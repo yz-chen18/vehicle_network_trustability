@@ -94,7 +94,7 @@ class Car {
         }
     }
 
-        draw_route() {
+    draw_route() {
         this.route = new AMap.Polyline({
             map: this.map,
             path: this.path,
@@ -107,7 +107,10 @@ class Car {
     }
 
     clear_route() {
-        this.map.remove(this.route);
+        if (this.route != null) {
+            this.map.remove(this.route);
+            this.route = null;
+        }
     }
 
     draw_network() {
