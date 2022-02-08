@@ -93,6 +93,7 @@ class Application {
                         passedPolyline.setPath(e.passedPath);
                         if (car.infoWindow != null) {
                             car.infoWindow.setPosition(car.marker.getPosition());
+                            car.infoWindow.update_network();
                             let content = car.trusted_carLinklist.toString();
                             if (content !== car.infoWindow.getContent()) {
                                 car.infoWindow.setContent(content);
@@ -105,16 +106,18 @@ class Application {
                         console.warn(car.trusted_carLinklist.toString())
                         if (car.infoWindow == null) {
                             car.infoWindow = new AdvancedInfoWindow(map, path, car.trusted_carLinklist.toString(),
-                                    car.marker.getPosition());
+                                    car.marker.getPosition(), car.trusted_carLinklist);
                         }
                         car.infoWindow.on('close', function () {
                             if (car.infoWindow != null && car.infoWindow.route != null) {
-                                map.remove(car.infoWindow.route);
+                                car.infoWindow.clear_route();
+                                car.infoWindow.clear_network();
                                 car.infoWindow = null;
                             }
                         })
-                        car.infoWindow.open(map);
-                        car.infoWindow.draw_route(map, path);
+                        car.infoWindow.open();
+                        car.infoWindow.draw_route();
+                        car.infoWindow.draw_network();
                     });
 
 
@@ -132,15 +135,16 @@ class Application {
                         }
 
                         p.generate_ride();
-                        for (let i=0; i < cars.length; i++) {
-                            if (cars[i].id === car.id) {
-                                cars.splice(i, 1);
+                        for (let i=0; i < p.cars.length; i++) {
+                            if (p.cars[i].id === car.id) {
+                                p.cars.splice(i, 1);
                                 break;
                             }
                         }
                         if (car.infoWindow != null) {
                             car.infoWindow.close();
-                            map.remove(car.infoWindow.route);
+                            car.infoWindow.clear_route();
+                            car.infoWindow.clear_network();
                             car.infoWindow = null;
                         }
                     });
