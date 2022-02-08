@@ -43,38 +43,38 @@ class Application {
         });
         // 根据起终点经纬度规划驾车导航路线
 
-        let is_trustable = (Math.random() > 0);
-        var marker = new AMap.Marker({
-            map: map,
-            position: startPoint,
-            icon: (is_trustable) ? "./static/real_car.png" : "./static/fake_car.png",
-            offset: new AMap.Pixel(-13, -26),
-        });
-
-        let car = new Car(marker, this.id, speed(), is_trustable, this.needed_amount, this.trust_thresh, this.send_cycle);
-        car.marker.setLabel({
-            offset: new AMap.Pixel(0,0),
-            content: this.id,
-            direction: 'center',
-        })
-        this.id = this.id + 1;
-
-        let sendInterval = setInterval(function send() {
-            for (let i = 0; i < p.cars.length; i++) {
-                if (p.cars[i].id !== car.id) {
-                    let dist = distance(p.cars[i].marker.getPosition(), car.marker.getPosition());
-                    if (dist < COMMUNICATION_RANGE) {
-                        car.send_message(p.cars[i]);
-                    }
-                }
-            }
-        }, car.send_frequency);
-
         driving.search(startPoint, endPoint, function(status, result) {
             // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
             if (status === 'complete') {
                 //log.success('绘制驾车路线完成');
                 let path = parse(result.routes[0]);
+
+                let is_trustable = (Math.random() > 0);
+                var marker = new AMap.Marker({
+                    map: map,
+                    position: startPoint,
+                    icon: (is_trustable) ? "./static/real_car.png" : "./static/fake_car.png",
+                    offset: new AMap.Pixel(-13, -26),
+                });
+
+                let car = new Car(marker, p.id, speed(), is_trustable, p.needed_amount, p.trust_thresh, p.send_cycle);
+                car.marker.setLabel({
+                    offset: new AMap.Pixel(0,0),
+                    content: p.id,
+                    direction: 'center',
+                })
+                p.id = p.id + 1;
+
+                let sendInterval = setInterval(function send() {
+                    for (let i = 0; i < p.cars.length; i++) {
+                        if (p.cars[i].id !== car.id) {
+                            let dist = distance(p.cars[i].marker.getPosition(), car.marker.getPosition());
+                            if (dist < COMMUNICATION_RANGE) {
+                                car.send_message(p.cars[i]);
+                            }
+                        }
+                    }
+                }, car.send_frequency);
 
                 AMap.plugin('AMap.MoveAnimation', function(){
 
@@ -160,12 +160,12 @@ class Application {
                     car.marker.on('receive_insert_update', receive_insert_update_handle);
                 });
 
+                p.cars.push(car);
             } else {
                 log.error('获取驾车数据失败：' + result)
             }
         });
 
-        this.cars.push(car);
     }
 
     resumeAnimation() {
@@ -175,6 +175,7 @@ class Application {
         }
     }
 
+    //todo 停时钟
     pauseAnimation() {
         let cars = this.cars;
         for (let i = 0; i < cars.length; i++) {
