@@ -15,7 +15,7 @@ let RouteViewer = function(map) {
 
     this.clear = function () {
         if (_route != null) {
-            this.map.remove(this.route);
+            _map.remove(_route);
             _route = null;
         }
     }

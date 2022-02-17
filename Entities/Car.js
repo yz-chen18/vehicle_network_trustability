@@ -28,10 +28,9 @@ class Car {
         this.timer = 0;
 
         //todo Observer
-        this.route = null;
-        this.show_network = false;
-
-        this.networkObserver = new NetworkObserver(this);
+        this.observer_switch = false;
+        this.networkObserver = new NetworkObserver(this.map);
+        this.routeViewer = new RouteViewer(this.map);
     }
 
     search(startPoint, endPoint, cars) {
@@ -121,7 +120,7 @@ class Car {
     }
 
     movingFunction() {
-        if (this.show_network) {
+        if (this.observer_switch) {
             //this.update_network();
             this.networkObserver.update(this.trusted_carLinklist, this.marker);
         }
@@ -130,16 +129,14 @@ class Car {
     clickFunction() {
         log.success(this.id);
         console.warn(this.trusted_carLinklist.toString())
-        if (this.show_network === false) {
-            this.draw_route();
-            //this.draw_network();
+        if (this.observer_switch === false) {
+            this.routeViewer.draw(this.path);
             this.networkObserver.update(this.trusted_carLinklist, this.marker);
-            this.show_network = true;
+            this.observer_switch = true;
         } else {
-            this.clear_route();
-            // this.clear_network();
+            this.routeViewer.clear();
             this.networkObserver.clear();
-            this.show_network = false;
+            this.observer_switch = false;
         }
     }
 
@@ -163,9 +160,9 @@ class Car {
                 break;
             }
         }
-        this.clear_route();
+        this.routeViewer.clear();
         this.networkObserver.clear();
-        this.show_network = false;
+        this.observer_switch = false;
     }
 
     // p for the possibility of generating reliable data, p must gt 0
@@ -234,25 +231,6 @@ class Car {
 
         if (sender.id in this.unlabeled_cars) {
             this.unlabeled_cars[sender.id][message.data] += 1;
-        }
-    }
-
-    draw_route() {
-        this.route = new AMap.Polyline({
-            map: this.map,
-            path: this.path,
-            showDir: true,
-            strokeColor: "#28F",  //线颜色
-            // strokeOpacity: 1,     //线透明度
-            strokeWeight: 6,      //线宽
-            // strokeStyle: "solid"  //线样式
-        });
-    }
-
-    clear_route() {
-        if (this.route != null) {
-            this.map.remove(this.route);
-            this.route = null;
         }
     }
 }
