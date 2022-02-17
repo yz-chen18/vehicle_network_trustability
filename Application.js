@@ -34,8 +34,8 @@ class Application {
         car.search(startPoint, endPoint, this.cars);
     }
 
+    /*
     generate_ride() {
-        //todo 汽车速度策略
         function speed() {
             return MINIMUM_SPEED + Math.random() * SPEED_RANGE;
         }
@@ -164,7 +164,7 @@ class Application {
             }
         });
 
-    }
+    }*/
 
     resumeAnimation() {
         let cars = this.cars;

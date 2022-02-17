@@ -30,8 +30,8 @@ class Car {
         //todo Observer
         this.route = null;
         this.show_network = false;
-        this.main_network = {};
-        this.sub_network = {};
+
+        this.networkObserver = new NetworkObserver(this);
     }
 
     search(startPoint, endPoint, cars) {
@@ -122,7 +122,8 @@ class Car {
 
     movingFunction() {
         if (this.show_network) {
-            this.update_network();
+            //this.update_network();
+            this.networkObserver.update(this.trusted_carLinklist, this.marker);
         }
     }
 
@@ -131,11 +132,13 @@ class Car {
         console.warn(this.trusted_carLinklist.toString())
         if (this.show_network === false) {
             this.draw_route();
-            this.draw_network();
+            //this.draw_network();
+            this.networkObserver.update(this.trusted_carLinklist, this.marker);
             this.show_network = true;
         } else {
             this.clear_route();
-            this.clear_network();
+            // this.clear_network();
+            this.networkObserver.clear();
             this.show_network = false;
         }
     }
@@ -161,7 +164,7 @@ class Car {
             }
         }
         this.clear_route();
-        this.clear_network();
+        this.networkObserver.clear();
         this.show_network = false;
     }
 
@@ -251,66 +254,5 @@ class Car {
             this.map.remove(this.route);
             this.route = null;
         }
-    }
-
-    draw_network() {
-        let head = this.trusted_carLinklist.head;
-        while (head.next != null) {
-            let path = [this.marker.getPosition(), head.next.car.marker.getPosition()];
-            this.main_network[head.next.car.id] = new AMap.Polyline({
-                map: this.map,
-                path: path,
-                showDir: true,
-                outlineColor: '#ffeeff',
-                borderWeight: 3,
-                strokeColor: "#3366FF",
-                strokeOpacity: 1,
-                strokeWeight: 6,
-                strokeStyle: "solid"  //线样式
-            });
-
-            let subchain = head.next.subchain;
-            this.sub_network[head.next.car.id] = {};
-            while (subchain != null) {
-                if (subchain.car.id !== this.trusted_carLinklist.head.car.id) {
-                    let path = [head.next.car.marker.getPosition(), subchain.car.marker.getPosition()];
-                    this.sub_network[head.next.car.id][subchain.car.id] = new AMap.Polyline({
-                        map: this.map,
-                        path: path,
-                        showDir: true,
-                        outlineColor: '#ffeeff',
-                        borderWeight: 3,
-                        strokeColor: "#FF7F27",
-                        strokeOpacity: 1,
-                        strokeWeight: 6,
-                        strokeStyle: "solid"  //线样式
-                    });
-                }
-                subchain = subchain.next;
-            }
-            head = head.next;
-        }
-    }
-
-    clear_network() {
-        let keys = Object.keys(this.main_network);
-        for (let i = 0; i < keys.length; i++) {
-            this.map.remove(this.main_network[keys[i]]);
-            delete(this.main_network[keys[i]]);
-        }
-
-        keys = Object.keys(this.sub_network);
-        for (let i = 0; i < keys.length; i++) {
-            let sub_keys = Object.keys(this.sub_network[keys[i]]);
-            for (let j = 0; j < sub_keys.length; j++) {
-                this.map.remove(this.sub_network[keys[i]][sub_keys[j]]);
-                delete(this.sub_network[keys[i]][sub_keys[j]]);
-            }
-        }
-    }
-
-    update_network() {
-        this.clear_network();
-        this.draw_network();
     }
 }
