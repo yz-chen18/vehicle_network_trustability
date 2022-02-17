@@ -18,9 +18,20 @@ class Application {
 
     init() {
         for (let i = 0; i < this.vehicle_num; i++) {
-            this.generate_ride();
+            this.generate_ride_new();
         }
         this.pauseAnimation();
+    }
+
+    generate_ride_new() {
+        function speed() {
+            return MINIMUM_SPEED + Math.random() * SPEED_RANGE;
+        }
+        let startPoint = new AMap.LngLat(this.lng+Math.random()*this.location_variance, this.lat+Math.random()*this.location_variance);
+        let endPoint = new AMap.LngLat(this.lng+Math.random()*this.location_variance, this.lat+Math.random()*this.location_variance);
+        let car = new Car(this.map, this.id, speed(), this);
+        this.id = this.id + 1;
+        car.search(startPoint, endPoint, this.cars);
     }
 
     generate_ride() {

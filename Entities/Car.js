@@ -1,28 +1,168 @@
 class Car {
-    constructor(map, path, marker, id, speed, is_trustable=true, needed_amount = 20, trust_thresh = 0.6,
-                send_frequency = 5) {
+    constructor(map, id, speed, application, is_trustable=true,
+                needed_amount = 20, trust_thresh = 0.6, send_frequency = 5) {
         this.map = map;
-        this.path = path;
-        this.marker = marker;
+        this.path;
+        this.marker;
         this.id = id;
         this.speed = speed;
+        this.is_trustable = is_trustable;
         this.infoWindow = null;
         this.untrusted_cars = {};
-        this.trusted_carLinklist = new CarLinkList(id, this, 1, new Date().getTime());
         this.unlabeled_cars = {};
-        this.is_trustable = is_trustable;
-        this.needed_amount = needed_amount;
+
+
         this.trust_thresh = trust_thresh;
+        this.trusted_carLinklist = new CarLinkList(id, this, 1, new Date().getTime());
+
+        //todo 抽象一个数据发送接收器
+        this.needed_amount = needed_amount;
         this.send_frequency = send_frequency;
         this.self_real_num = 0;
         this.self_fake_num = 0;
+        this.application = application;
+
+        //todo 都是什么变量...
         this.other_trust_value_buffer = 0.0;
         this.other_selftrust_value_buffer = 0.0;
         this.timer = 0;
+
+        //todo Observer
         this.route = null;
         this.show_network = false;
         this.main_network = {};
         this.sub_network = {};
+    }
+
+    search(startPoint, endPoint, cars) {
+        let p = this;
+        //构造路线导航类
+        let driving = new AMap.Driving({
+            //map: map,
+            autoFitView: false,
+            showTraffic: false,
+            hideMarkers: true,
+            //isOutline: false,
+            //panel: "panel"
+        });
+        // 根据起终点经纬度规划驾车导航路线
+
+        driving.search(startPoint, endPoint, function(status, result) {
+            // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
+            if (status === 'complete') {
+                //log.success('绘制驾车路线完成');
+                p.path = parse(result.routes[0]);
+
+                let is_trustable = (Math.random() > 0);
+                p.marker = new AMap.Marker({
+                    map: p.map,
+                    position: startPoint,
+                    icon: (is_trustable) ? "./static/real_car.png" : "./static/fake_car.png",
+                    offset: new AMap.Pixel(-13, -26),
+                });
+
+                // let car = new Car(p.map, path, marker, p.id, speed(), is_trustable, p.needed_amount, p.trust_thresh, p.send_cycle);
+                p.marker.setLabel({
+                    offset: new AMap.Pixel(0,0),
+                    content: p.id,
+                    direction: 'center',
+                })
+
+                //todo 改为装饰器或者单独成类
+                let sendInterval = setInterval(function send() {
+                    for (let i = 0; i < cars.length; i++) {
+                        if (cars[i].id !== p.id) {
+                            let dist = distance(cars[i].marker.getPosition(), p.marker.getPosition());
+                            if (dist < COMMUNICATION_RANGE) {
+                                p.send_message(cars[i]);
+                            }
+                        }
+                    }
+                }, p.send_frequency);
+
+                AMap.plugin('AMap.MoveAnimation', function(){
+                    p.marker.moveAlong(p.path, {
+                        // 每一段的速度
+                        speed: p.speed,
+                    });
+
+                    p.marker.on('moving', function () {
+                        //passedPolyline.setPath(e.passedPath);
+                        p.movingFunction()
+                    });
+
+                    p.marker.on('click', function() {
+                        p.clickFunction();
+                    });
+
+
+                    //todo 改为通知Application
+                    p.marker.on('movealong', function() {
+                        p.movealongFunction(sendInterval, driving, cars)
+                    });
+
+                    p.marker.on('receive_data', receive_data_event_handle_new);
+
+                    p.marker.on('receive_linklist', receive_linklist_event_handle);
+
+                    p.marker.on('receive_self_trust_value', receive_self_trust_value_handle);
+
+                    p.marker.on('receive_remove_update', receive_remove_update_handle);
+
+                    p.marker.on('receive_insert_update', receive_insert_update_handle);
+                });
+
+                cars.push(p);
+            } else {
+                log.error('获取驾车数据失败：' + result)
+            }
+        });
+
+    }
+
+    movingFunction() {
+        if (this.show_network) {
+            this.update_network();
+        }
+    }
+
+    clickFunction() {
+        log.success(this.id);
+        console.warn(this.trusted_carLinklist.toString())
+        if (this.show_network === false) {
+            this.draw_route();
+            this.draw_network();
+            this.show_network = true;
+        } else {
+            this.clear_route();
+            this.clear_network();
+            this.show_network = false;
+        }
+    }
+
+    movealongFunction(sendInterval, driving, cars) {
+        //log.success('Arrive');
+        clearInterval(sendInterval);
+        this.marker.hide();
+        driving.clear();
+
+        let head = this.trusted_carLinklist.head;
+
+        while (head.next != null) {
+            clearTimeout(head.next.timer);
+            head = head.next;
+        }
+
+        this.application.generate_ride_new();
+        for (let i=0; i < cars.length; i++) {
+            if (cars[i].id === this.id) {
+                cars.splice(i, 1);
+                break;
+            }
+        }
+        this.clear_route();
+        this.clear_network();
+        this.show_network = false;
     }
 
     // p for the possibility of generating reliable data, p must gt 0
