@@ -26,37 +26,23 @@ let Communicator = function(amount = 20, frequency = 5, thresh = 0.6) {
             }
         }, send_frequency);
 
+        //todo Observer
         AMap.plugin('AMap.MoveAnimation', function() {
             self_car.marker.moveAlong(self_car.path, {
                 // 每一段的速度
                 speed: self_car.speed,
             });
-
-            self_car.marker.on('moving', function () {
-                //passedPolyline.setPath(e.passedPath);
-                self_car.movingFunction()
-            });
-
-            self_car.marker.on('click', function () {
-                self_car.clickFunction();
-            });
-
-
-            //todo 改为通知Application
-            self_car.marker.on('movealong', function () {
-                self_car.movealongFunction(sendInterval, driving, cars)
-            });
-
-            self_car.marker.on('receive_data', receive_data_event_handle_new);
-
-            self_car.marker.on('receive_linklist', receive_linklist_event_handle);
-
-            self_car.marker.on('receive_self_trust_value', receive_self_trust_value_handle);
-
-            self_car.marker.on('receive_remove_update', receive_remove_update_handle);
-
-            self_car.marker.on('receive_insert_update', receive_insert_update_handle);
         });
+
+        self_car.marker.on('moving', function () {/*passedPolyline.setPath(e.passedPath);*/self_car.movingFunction()});
+        self_car.marker.on('click', function () {self_car.clickFunction();});
+        //todo 改为通知Application
+        self_car.marker.on('movealong', function () {self_car.movealongFunction(sendInterval, driving, cars)});
+        self_car.marker.on('receive_data', receive_data_event_handle_new);
+        self_car.marker.on('receive_linklist', receive_linklist_event_handle);
+        self_car.marker.on('receive_self_trust_value', receive_self_trust_value_handle);
+        self_car.marker.on('receive_remove_update', receive_remove_update_handle);
+        self_car.marker.on('receive_insert_update', receive_insert_update_handle);
     }
 
     // p for the possibility of generating reliable data, p must gt 0
