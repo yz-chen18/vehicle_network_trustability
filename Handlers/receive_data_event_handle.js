@@ -9,6 +9,6 @@ function receive_data_event_handle(e) {
         //console.log("untrusted::", e.car.untrusted_cars[e.message.id]);
     } else {
         //console.log(e);
-        e.receiver.calculate_trust_value(e.message, e.sender);
+        e.receiver.communicator.calculate_trust_value(e.message, e.sender, e.receiver);
     }
 }

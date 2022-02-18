@@ -1,5 +1,5 @@
 function receive_data_event_handle_new(e) {
-    //console.log('Events.receive_data_event_handle:', e);
+    // console.log('Events.receive_data_event_handle:', e);
     let res = e.receiver.trusted_carLinklist.lookup(e.sender.id);
     let carLinkListPos = res[0];
     let carNode = res[1];
@@ -36,6 +36,6 @@ function receive_data_event_handle_new(e) {
     } else if (e.sender.id in e.receiver.untrusted_cars) {
         // nothing for now
     } else {
-        e.receiver.calculate_trust_value(e.message, e.sender);
+        e.receiver.communicator.calculate_trust_value(e.message, e.sender, e.receiver);
     }
 }

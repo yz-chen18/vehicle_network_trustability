@@ -10,8 +10,10 @@ class Switcher {
             this.registry[token.getHash()] = new Box(token.participants.size);
         }
 
+        console.warn(token.getHash(), events, this.registry);
         if (this.registry[token.getHash()].put(goods)) {
             // 触发交换事件
+
             token.participants.forEach(function (participant) {
                 for (let i = 0; i < events.length; i++) {
                     if (events[i][0] === participant) {
