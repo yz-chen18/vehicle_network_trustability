@@ -1,33 +1,30 @@
-class Communicator {
-    constructor(needed_amount = 20, send_frequency = 5, trust_thresh = 0.6) {
-        this.needed_amount = needed_amount;
-        this.send_frequency = send_frequency; //发送周期，单位为毫秒
-        this.self_real_num = 0;
-        this.self_fake_num = 0;
+let Communicator = function(amount = 20, frequency = 5, thresh = 0.6) {
+    let needed_amount = amount;
+    let send_frequency = frequency; //发送周期，单位为毫秒
+    let self_real_num = 0;
+    let self_fake_num = 0;
 
-        this.untrusted_cars = {};
-        this.unlabeled_cars = {};
-        this.trust_thresh = trust_thresh;
-        this.trusted_carLinklist = null;
+    this.untrusted_cars = {};
+    this.unlabeled_cars = {};
+    let trust_thresh = thresh;
+    this.trusted_carLinklist = null;
 
-        this.timer = 0;
-    }
+    let timer = 0;
 
-    init(cars, self_car, driving) {
+    this.init = function(cars, self_car, driving) {
         //todo 改为装饰器或者单独成类
         this.trusted_carLinklist = new CarLinkList(self_car.id, self_car, 1, new Date().getTime())
-        let communicator = this;
         let sendInterval = setInterval(function send() {
             for (let i = 0; i < cars.length; i++) {
                 if (cars[i].id !== self_car.id) {
                     let dist = distance(cars[i].marker.getPosition(), self_car.marker.getPosition());
                     if (dist < COMMUNICATION_RANGE) {
-                        let message = new Message(self_car.id, communicator.generate_data(self_car.is_trustable));
-                        communicator.send_message(message, cars[i], self_car);
+                        let message = new Message(self_car.id, generate_data(self_car.is_trustable));
+                        send_message(message, cars[i], self_car);
                     }
                 }
             }
-        }, this.send_frequency);
+        }, send_frequency);
 
         AMap.plugin('AMap.MoveAnimation', function() {
             self_car.marker.moveAlong(self_car.path, {
@@ -63,7 +60,7 @@ class Communicator {
     }
 
     // p for the possibility of generating reliable data, p must gt 0
-    generate_data(is_trustable) {
+    let generate_data = function(is_trustable) {
         let p;
         if (is_trustable) {
             p = 1;
@@ -80,22 +77,22 @@ class Communicator {
     }
 
     // car为接收方
-    send_message(message, receiver, sender) {
+    let send_message = function(message, receiver, sender) {
         if (message.data) {
-            this.self_real_num += 1;
+            self_real_num += 1;
         } else {
-            this.self_fake_num += 1;
+            self_fake_num += 1;
         }
         receiver.marker.emit('receive_data', {message: message, receiver: receiver, sender: sender});
     }
 
-    receive_message(message) {
+    let receive_message = function(message) {
 
     }
 
     // 通过他车发送的信息计算他车的信任值，sender为他车
-    calculate_trust_value(message, sender, self_car) {
-        this.timer += 1;
+    this.calculate_trust_value = function(message, sender, self_car) {
+        timer += 1;
         if (!(sender.id in this.unlabeled_cars)) {
             this.unlabeled_cars[sender.id] = [0, 0];
         }
@@ -104,11 +101,11 @@ class Communicator {
         let fake_data_num = this.unlabeled_cars[sender.id][0];
 
         // 当数据量足以计算信任值且被计算的车辆不在信任链表中
-        if ((real_data_num + fake_data_num  === this.needed_amount) && (sender.id in this.unlabeled_cars)
+        if ((real_data_num + fake_data_num  === needed_amount) && (sender.id in this.unlabeled_cars)
             && this.trusted_carLinklist.lookup_main(sender.id) === null) {
             let algo = new TrustValueAlgo(real_data_num, fake_data_num);
             let trust_value = algo.get_trust_value();
-            let self_algo = new TrustValueAlgo(this.self_real_num, this.self_fake_num);
+            let self_algo = new TrustValueAlgo(self_real_num, self_fake_num);
             let self_trust_value = self_algo.get_trust_value();
 
             //todo 放到消息中
