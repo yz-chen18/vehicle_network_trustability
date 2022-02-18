@@ -4,11 +4,11 @@ function receive_self_trust_value_handle(e) {
     let trust_value = Math.min(receiver.other_selftrust_value_buffer, receiver.other_trust_value_buffer);
 
     if (trust_value > receiver.trust_thresh) {
-        console.warn(receiver.id, 'before insert_node', receiver.trusted_carLinklist,
-            receiver.trusted_carLinklist.toString(), 'inserted id:', sender.id, 'trust value:', trust_value);
-        receiver.trusted_carLinklist.insert_node(sender, trust_value, receiver.trust_thresh);
-        console.warn(receiver.id, 'after insert_node', receiver.trusted_carLinklist,
-            receiver.trusted_carLinklist.toString());
+        console.warn(receiver.id, 'before insert_node', receiver.communicator.trusted_carLinklist,
+            receiver.communicator.trusted_carLinklist.toString(), 'inserted id:', sender.id, 'trust value:', trust_value);
+        receiver.communicator.trusted_carLinklist.insert_node(sender, trust_value, receiver.trust_thresh);
+        console.warn(receiver.id, 'after insert_node', receiver.communicator.trusted_carLinklist,
+            receiver.communicator.trusted_carLinklist.toString());
 
 
         let token = new Token('receive_self_trust_value_handle', new Set([receiver.marker, sender.marker]),
@@ -20,8 +20,8 @@ function receive_self_trust_value_handle(e) {
         switcher.put(token, events);
         // sender.marker.emit('receive_linklist', {sender: receiver, receiver: sender});
     } else {
-        receiver.untrusted_cars[sender.id] = trust_value;
+        receiver.communicator.untrusted_cars[sender.id] = trust_value;
     }
 
-    delete receiver.unlabeled_cars[sender.id];
+    delete receiver.communicator.unlabeled_cars[sender.id];
 }

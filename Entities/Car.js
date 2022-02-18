@@ -7,20 +7,15 @@ class Car {
         this.id = id;
         this.speed = speed;
         this.is_trustable = is_trustable;
-        this.untrusted_cars = {};
-        this.unlabeled_cars = {};
         this.trust_thresh = trust_thresh;
-        this.trusted_carLinklist = new CarLinkList(id, this, 1, new Date().getTime());
 
         //todo 抽象一个数据发送接收器
         this.communicator = communicator;
-
         this.application = application;
 
         //todo 都是什么变量...
         this.other_trust_value_buffer = 0.0;
         this.other_selftrust_value_buffer = 0.0;
-        this.timer = 0;
 
         //todo Observer
         this.observer_switch = false;
@@ -75,16 +70,16 @@ class Car {
     movingFunction() {
         if (this.observer_switch) {
             //this.update_network();
-            this.networkObserver.update(this.trusted_carLinklist, this.marker);
+            this.networkObserver.update(this.communicator.trusted_carLinklist, this.marker);
         }
     }
 
     clickFunction() {
         log.success(this.id);
-        console.warn(this.trusted_carLinklist.toString())
+        console.warn(this.communicator.trusted_carLinklist.toString())
         if (this.observer_switch === false) {
             this.routeViewer.draw(this.path);
-            this.networkObserver.update(this.trusted_carLinklist, this.marker);
+            this.networkObserver.update(this.communicator.trusted_carLinklist, this.marker);
             this.observer_switch = true;
         } else {
             this.routeViewer.clear();
@@ -99,7 +94,7 @@ class Car {
         this.marker.hide();
         driving.clear();
 
-        let head = this.trusted_carLinklist.head;
+        let head = this.communicator.trusted_carLinklist.head;
 
         while (head.next != null) {
             clearTimeout(head.next.timer);

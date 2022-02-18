@@ -1,13 +1,21 @@
 class Communicator {
-    constructor(needed_amount = 20, send_frequency = 5) {
+    constructor(needed_amount = 20, send_frequency = 5, trust_thresh = 0.6) {
         this.needed_amount = needed_amount;
         this.send_frequency = send_frequency; //发送周期，单位为毫秒
         this.self_real_num = 0;
         this.self_fake_num = 0;
+
+        this.untrusted_cars = {};
+        this.unlabeled_cars = {};
+        this.trust_thresh = trust_thresh;
+        this.trusted_carLinklist = null;
+
+        this.timer = 0;
     }
 
     init(cars, self_car, driving) {
         //todo 改为装饰器或者单独成类
+        this.trusted_carLinklist = new CarLinkList(self_car.id, self_car, 1, new Date().getTime())
         let communicator = this;
         let sendInterval = setInterval(function send() {
             for (let i = 0; i < cars.length; i++) {
@@ -87,17 +95,17 @@ class Communicator {
 
     // 通过他车发送的信息计算他车的信任值，sender为他车
     calculate_trust_value(message, sender, self_car) {
-        self_car.timer += 1;
-        if (!(sender.id in self_car.unlabeled_cars)) {
-            self_car.unlabeled_cars[sender.id] = [0, 0];
+        this.timer += 1;
+        if (!(sender.id in this.unlabeled_cars)) {
+            this.unlabeled_cars[sender.id] = [0, 0];
         }
 
-        let real_data_num = self_car.unlabeled_cars[sender.id][1];
-        let fake_data_num = self_car.unlabeled_cars[sender.id][0];
+        let real_data_num = this.unlabeled_cars[sender.id][1];
+        let fake_data_num = this.unlabeled_cars[sender.id][0];
 
         // 当数据量足以计算信任值且被计算的车辆不在信任链表中
-        if ((real_data_num + fake_data_num  === this.needed_amount) && (sender.id in self_car.unlabeled_cars)
-            && self_car.trusted_carLinklist.lookup_main(sender.id) === null) {
+        if ((real_data_num + fake_data_num  === this.needed_amount) && (sender.id in this.unlabeled_cars)
+            && this.trusted_carLinklist.lookup_main(sender.id) === null) {
             let algo = new TrustValueAlgo(real_data_num, fake_data_num);
             let trust_value = algo.get_trust_value();
             let self_algo = new TrustValueAlgo(this.self_real_num, this.self_fake_num);
@@ -118,8 +126,8 @@ class Communicator {
 
         }
 
-        if (sender.id in self_car.unlabeled_cars) {
-            self_car.unlabeled_cars[sender.id][message.data] += 1;
+        if (sender.id in this.unlabeled_cars) {
+            this.unlabeled_cars[sender.id][message.data] += 1;
         }
     }
 }
