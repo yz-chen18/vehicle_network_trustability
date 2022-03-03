@@ -27,7 +27,7 @@ class Car {
         this.other_selftrust_value_buffer = 0.0;
         this.timer = 0;
 
-        //todo Observer
+        //todo 抽象车辆运动的viewer
         this.observer_switch = false;
         this.networkObserver = new NetworkObserver(this.map);
         this.routeViewer = new RouteViewer(this.map);
@@ -153,7 +153,7 @@ class Car {
             head = head.next;
         }
 
-        this.application.generate_ride_new();
+        this.application.generate_ride();
         for (let i=0; i < cars.length; i++) {
             if (cars[i].id === this.id) {
                 cars.splice(i, 1);
