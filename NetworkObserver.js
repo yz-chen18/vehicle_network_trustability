@@ -4,7 +4,7 @@ let NetworkObserver = function(map) {
     let sub_network = {};
 
     this.update = function(trusted_carLinklist, marker) {
-        this.clear();
+        this.detach();
         draw(trusted_carLinklist, marker);
     }
 
@@ -47,7 +47,7 @@ let NetworkObserver = function(map) {
         }
     }
 
-    this.clear = function() {
+    this.detach = function() {
         let keys = Object.keys(main_network);
         for (let i = 0; i < keys.length; i++) {
             _map.remove(main_network[keys[i]]);

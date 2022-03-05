@@ -1,3 +1,5 @@
+const EARTH_RADIUS = 63713930; //单位 m
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -22,7 +24,7 @@ function distance(pos1, pos2) {
     let lng2 = pos2.getLng();
     let lat2 = pos2.getLat();
 
-    return Math.sqrt(Math.pow(lng1-lng2, 2) + Math.pow(lat1-lat2, 2));
+    return lngLat_distance_to_meter(Math.abs(lng1-lng2), Math.abs(lat1-lat2));
 }
 
 function draw_route(map, path) {
@@ -35,4 +37,16 @@ function draw_route(map, path) {
         strokeWeight: 6,      //线宽
         // strokeStyle: "solid"  //线样式
     });
+}
+
+function lngLat_distance_to_meter(lnglat_dist) {
+    return EARTH_RADIUS * angular_to_rad(lnglat_dist.getLng()) * Math.cos(angular_to_rad(lnglat_dist.getLat()));
+}
+
+function lngLat_distance_to_meter(lng_dist, lat_dist) {
+    return EARTH_RADIUS * angular_to_rad(lng_dist) * Math.cos(angular_to_rad(lat_dist));
+}
+
+function angular_to_rad(angle) {
+    return angle * Math.PI / 180;
 }

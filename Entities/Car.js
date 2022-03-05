@@ -1,5 +1,5 @@
 class Car {
-    constructor(map, id, speed, application, moveAlongSwitch=true, is_trustable=true,
+    constructor(map, id, speed, application, moveAlongSwitch=true, show_communication_range=true, is_trustable=true,
                 needed_amount = 20, trust_thresh = 0.6, send_frequency = 5) {
         this.map = map;
         this.path;
@@ -31,6 +31,10 @@ class Car {
         this.observer_switch = false;
         this.networkObserver = new NetworkObserver(this.map);
         this.routeViewer = new RouteViewer(this.map);
+        this.communicationRangeObserver = new CommunicationRangeObserver(this.map, COMMUNICATION_RANGE)
+
+        this.moveAlongSwitch = moveAlongSwitch;
+        this.show_communication_range = show_communication_range;
     }
 
     search(startPoint, endPoint, cars) {
@@ -60,6 +64,10 @@ class Car {
                     offset: new AMap.Pixel(-13, -26),
                 });
 
+                if (p.show_communication_range) {
+                    p.communicationRangeObserver.attach(startPoint);
+                }
+
                 // let car = new Car(p.map, path, marker, p.id, speed(), is_trustable, p.needed_amount, p.trust_thresh, p.send_cycle);
                 p.marker.setLabel({
                     offset: new AMap.Pixel(0,0),
@@ -71,7 +79,7 @@ class Car {
                 let sendInterval = setInterval(function send() {
                     for (let i = 0; i < cars.length; i++) {
                         if (cars[i].id !== p.id) {
-                            let dist = distance(cars[i].marker.getPosition(), p.marker.getPosition());
+                            let dist = AMap.GeometryUtil.distance(cars[i].marker.getPosition(), p.marker.getPosition());
                             if (dist < COMMUNICATION_RANGE) {
                                 p.send_message(cars[i]);
                             }
@@ -124,6 +132,7 @@ class Car {
             //this.update_network();
             this.networkObserver.update(this.trusted_carLinklist, this.marker);
         }
+        this.communicationRangeObserver.update(this.marker.getPosition());
     }
 
     clickFunction() {
@@ -134,8 +143,8 @@ class Car {
             this.networkObserver.update(this.trusted_carLinklist, this.marker);
             this.observer_switch = true;
         } else {
-            this.routeViewer.clear();
-            this.networkObserver.clear();
+            this.routeViewer.detach();
+            this.networkObserver.detach();
             this.observer_switch = false;
         }
     }
@@ -163,8 +172,9 @@ class Car {
                 break;
             }
         }
-        this.routeViewer.clear();
-        this.networkObserver.clear();
+        this.routeViewer.detach();
+        this.networkObserver.detach();
+        this.communicationRangeObserver.detach();
         this.observer_switch = false;
     }
 

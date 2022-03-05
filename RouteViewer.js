@@ -13,7 +13,7 @@ let RouteViewer = function(map) {
         });
     }
 
-    this.clear = function () {
+    this.detach = function () {
         if (_route != null) {
             _map.remove(_route);
             _route = null;
