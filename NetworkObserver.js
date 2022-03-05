@@ -2,10 +2,12 @@ let NetworkObserver = function(map) {
     let _map = map;
     let main_network = {};
     let sub_network = {};
+    let canvasDrawer = new CanvasDrawer("myCanvas");
 
     this.update = function(trusted_carLinklist, marker) {
         this.detach();
         draw(trusted_carLinklist, marker);
+        canvasDrawer.draw(trusted_carLinklist);
     }
 
     function draw(trusted_carLinklist, marker) {
@@ -62,6 +64,8 @@ let NetworkObserver = function(map) {
                 delete(sub_network[keys[i]][sub_keys[j]]);
             }
         }
+
+        canvasDrawer.clear();
     }
 }
 
