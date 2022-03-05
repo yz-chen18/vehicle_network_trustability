@@ -1,6 +1,6 @@
 class Car {
     constructor(map, id, speed, application, moveAlongSwitch=true, show_communication_range=true, is_trustable=true,
-                needed_amount = 20, trust_thresh = 0.6, send_frequency = 5) {
+                needed_amount = 20, trust_thresh = 0.6, send_frequency = MESSAGE_SEND_CYCLE) {
         this.map = map;
         this.path;
         this.marker;

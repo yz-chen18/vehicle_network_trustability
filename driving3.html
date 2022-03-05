@@ -91,15 +91,15 @@
     const SPEED_RANGE = 40;
     const MINIMUM_POSSIBILITY = 0.1; // 虚假车辆发送正确数据的最小概率
     const POSSIBILITY_RANGE = 0.1;
-    const COMMUNICATION_RANGE = 20; // 通信经纬度距离
-    const MESSAGE_SEND_CYCLE = 5; // 单位毫秒
+    const COMMUNICATION_RANGE = 40; // 通信经纬度距离
+    const MESSAGE_SEND_CYCLE = 100; // 单位毫秒
     const NEEDED_AMOUNT_FOR_TRUST_VALUE = 20; // 计算信任值所需要的时间周期数(或理解为数据量)
     const zoom = 20;
 
     let switcher = new Switcher();
     let application = new Application(CAR_NUM, LNG, LAT, LOCATION_VARIANCE, TRUST_THRESH,
         MESSAGE_SEND_CYCLE, NEEDED_AMOUNT_FOR_TRUST_VALUE, zoom);
-    application.default_init();
+    application.init3();
     //window.setInterval(function f() {console.log(markers)}, 2000);
 </script>
 </body>

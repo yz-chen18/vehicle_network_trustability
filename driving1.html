@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>车联网可信链表仿真</title>
+    <style type="text/css">
+    html,
+    body,
+    #container {
+      width: 100%;
+      height: 100%;
+    }
+    </style>
+    <style type="text/css">
+
+        #control_panel {
+            bottom: 10px;
+            top: auto;
+        }
+
+        .input-card .btn {
+            width: 9rem;
+            margin-right: 0.5rem;
+        }
+
+        #panel {
+            position: fixed;
+            background-color: white;
+            max-height: 90%;
+            overflow-y: auto;
+            top: 10px;
+            right: 10px;
+            width: 280px;
+        }
+        #panel .amap-call {
+            background-color: #009cf9;
+            border-top-left-radius: 4px;
+   	        border-top-right-radius: 4px;
+        }
+        #panel .amap-lib-driving {
+	        border-bottom-left-radius: 4px;
+   	        border-bottom-right-radius: 4px;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+    <script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=b9bd008014619c460651a5d778d0a0f9&plugin=AMap.Driving"></script>
+    <script type="text/javascript" src="https://cache.amap.com/lbs/static/addToolbar.js"></script>
+</head>
+<body>
+<div id="container"></div>
+<div id="control_panel" class="input-card">
+    <div class="input-item">
+        <input type="button" class="btn" value="继续演示" onclick="application.resumeAnimation()"/>
+        <input type="button" class="btn" value="暂停演示" onclick="application.pauseAnimation()"/>
+    </div>
+</div>
+<div id="panel"></div>
+<script src="Application.js"></script>
+<script src="Entities/Car.js"></script>
+<script src="Utils.js"></script>
+<script src="Entities/AdvancedInfoWindow.js"></script>
+<script src="Entities/Message.js"></script>
+<script src="Algorithms.js"></script>
+<script src="Entities/CarNode.js"></script>
+<script src="Entities/CarLinkList.js"></script>
+<script src="Entities/Switcher.js"></script>
+<script src="Entities/Event.js"></script>
+<script src="Common/Enums/CarLinkListPosEnum.js"></script>
+<script src="Handlers/receive_data_event_handle.js"></script>
+<script src="Handlers/receive_data_event_handle_new.js"></script>
+<script src="Handlers/receive_insert_update_handle.js"></script>
+<script src="Handlers/receive_linklist_event_handle.js"></script>
+<script src="Handlers/receive_remove_update_handle.js"></script>
+<script src="Handlers/receive_self_trust_value_handle.js"></script>
+<script src="NetworkObserver.js"></script>
+<script src="RouteViewer.js"></script>
+<script src="CommunicationRangeObserver.js"></script>
+
+<script type="text/javascript">
+    //基本地图加载
+    const LNG = 116.502295;
+    const LAT = 39.870763;
+    const LOCATION_VARIANCE = 100 // 通信距离
+    const CAR_NUM = 4;
+    const TRUST_THRESH = 0.5;
+    const MINIMUM_SPEED = 60; // 单位 km/h
+    const SPEED_RANGE = 40;
+    const MINIMUM_POSSIBILITY = 0.1; // 虚假车辆发送正确数据的最小概率
+    const POSSIBILITY_RANGE = 0.1;
+    const COMMUNICATION_RANGE = 20; // 通信经纬度距离
+    const MESSAGE_SEND_CYCLE = 100; // 单位毫秒
+    const NEEDED_AMOUNT_FOR_TRUST_VALUE = 20; // 计算信任值所需要的时间周期数(或理解为数据量)
+    const zoom = 20;
+
+    let switcher = new Switcher();
+    let application = new Application(CAR_NUM, LNG, LAT, LOCATION_VARIANCE, TRUST_THRESH,
+        MESSAGE_SEND_CYCLE, NEEDED_AMOUNT_FOR_TRUST_VALUE, zoom);
+    application.init1();
+    //window.setInterval(function f() {console.log(markers)}, 2000);
+</script>
+</body>
+</html>

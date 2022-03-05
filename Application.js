@@ -14,12 +14,25 @@ class Application {
         });
     }
 
-    default_init() {
-        this.generate_ride(new AMap.LngLat(116.50338, 39.870905), new AMap.LngLat(116.501792, 39.87095), 20, false, true);
-        this.generate_ride(new AMap.LngLat(116.503463, 39.871005), new AMap.LngLat(116.501873, 39.87105), 20, false, true);
-        this.generate_ride(new AMap.LngLat(116.501049, 39.870811), new AMap.LngLat(116.502637, 39.870753), 20, false, true);
-        this.generate_ride(new AMap.LngLat(116.500986, 39.870642), new AMap.LngLat(116.502574, 39.870597), 20, false, true);
+    init1() {
+        this.generate_ride(new AMap.LngLat(116.50268, 39.870935), new AMap.LngLat(116.501092, 39.870967), 15, false, true);
+        this.generate_ride(new AMap.LngLat(116.501949, 39.870811), new AMap.LngLat(116.503537, 39.870753), 15, false, true);
     }
+
+    init2() {
+        this.generate_ride(new AMap.LngLat(116.50268, 39.870935), new AMap.LngLat(116.501092, 39.870967), 15, false, true);
+        this.generate_ride(new AMap.LngLat(116.502763, 39.871005), new AMap.LngLat(116.501173, 39.87105), 15, false, true);
+        this.generate_ride(new AMap.LngLat(116.501949, 39.870811), new AMap.LngLat(116.503537, 39.870753), 15, false, true);
+        this.generate_ride(new AMap.LngLat(116.501886, 39.870605), new AMap.LngLat(116.503474, 39.870564), 15, false, true);
+    }
+
+    init3() {
+        this.generate_ride(new AMap.LngLat(116.50268, 39.870935), new AMap.LngLat(116.501092, 39.870967), 10, false, true);
+        this.generate_ride(new AMap.LngLat(116.501949, 39.870811), new AMap.LngLat(116.503537, 39.870753), 10, false, true);
+        this.generate_ride(new AMap.LngLat(116.501589, 39.870811), new AMap.LngLat(116.503177, 39.870753), 10, false, true);
+        this.generate_ride(new AMap.LngLat(116.501886, 39.870605), new AMap.LngLat(116.503474, 39.870564), 10, false, true);
+    }
+    
 
     generate_ride(startPoint=new AMap.LngLat(this.lng+Math.random()*this.location_variance, this.lat+Math.random()*this.location_variance), 
     endPoint=new AMap.LngLat(this.lng+Math.random()*this.location_variance, this.lat+Math.random()*this.location_variance),
