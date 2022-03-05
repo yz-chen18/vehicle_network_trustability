@@ -1,5 +1,5 @@
 class Car {
-    constructor(map, id, speed, application, is_trustable=true,
+    constructor(map, id, speed, application, moveAlongSwitch=true, is_trustable=true,
                 needed_amount = 20, trust_thresh = 0.6, send_frequency = 5) {
         this.map = map;
         this.path;
@@ -153,7 +153,10 @@ class Car {
             head = head.next;
         }
 
-        this.application.generate_ride();
+        if (this.moveAlongSwitch) {
+            this.application.generate_ride();
+        }
+    
         for (let i=0; i < cars.length; i++) {
             if (cars[i].id === this.id) {
                 cars.splice(i, 1);
