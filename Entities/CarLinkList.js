@@ -60,6 +60,7 @@ class CarLinkList {
         console.warn('insert_node', this.head.id, car.id);
         while (head.next != null) {
             if (distance(head.next.car.marker.getPosition(), this.head.car.marker.getPosition()) < COMMUNICATION_RANGE) {
+                console.warn(this.id, 'send receive_insert_update', head.next.car.id);
                 head.next.car.marker.emit('receive_insert_update', {
                     receiver: head.next.car, sender: this.head.car,
                     inserted_car: car, trust_value: trust_value});

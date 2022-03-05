@@ -79,7 +79,7 @@ class Car {
                 let sendInterval = setInterval(function send() {
                     for (let i = 0; i < cars.length; i++) {
                         if (cars[i].id !== p.id) {
-                            let dist = AMap.GeometryUtil.distance(cars[i].marker.getPosition(), p.marker.getPosition());
+                            let dist = distance(cars[i].marker.getPosition(), p.marker.getPosition());
                             if (dist < COMMUNICATION_RANGE) {
                                 p.send_message(cars[i]);
                             }

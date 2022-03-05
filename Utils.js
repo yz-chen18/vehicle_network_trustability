@@ -19,12 +19,7 @@ function parse(route) {
 }
 
 function distance(pos1, pos2) {
-    let lng1 = pos1.getLng();
-    let lat1 = pos1.getLat();
-    let lng2 = pos2.getLng();
-    let lat2 = pos2.getLat();
-
-    return lngLat_distance_to_meter(Math.abs(lng1-lng2), Math.abs(lat1-lat2));
+    return AMap.GeometryUtil.distance(pos1, pos2);
 }
 
 function draw_route(map, path) {

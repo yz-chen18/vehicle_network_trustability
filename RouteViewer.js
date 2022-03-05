@@ -11,6 +11,7 @@ let RouteViewer = function(map) {
             strokeWeight: 6,      //线宽
             // strokeStyle: "solid"  //线样式
         });
+
     }
 
     this.detach = function () {
