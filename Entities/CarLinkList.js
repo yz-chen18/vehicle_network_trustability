@@ -71,6 +71,17 @@ class CarLinkList {
         let carNode = new CarNode(car.id, car, trust_value, new Date().getTime(), 0.9, trust_thresh);
         this.tail.next = carNode;
         this.tail = carNode;
+        let p = this;
+        carNode.timer = new Timer(DECAY_CYCLE, function () {
+            let trust_value = carNode.trust_decay();
+            if (trust_value > carNode.trust_thresh) {
+                p.retiming(carNode);
+            } else {
+                console.warn(p.head.id, 'before remove node, removed id', carNode.id, p.toString(), p);
+                p.remove_node_from_main(carNode.id);
+                console.warn(p.head.id, 'after remove node, removed id', carNode.id, p.toString(), p);
+            }
+        });
         this.retiming(carNode);
     }
 
@@ -111,7 +122,8 @@ class CarLinkList {
         let head = this.head;
         while (head.next != null) {
             if (head.next.id === id) {
-                clearTimeout(head.next.timer);
+                head.next.timer.stop();
+                // clearTimeout(head.next.timer);
                 if (this.tail === head.next) {
                     this.tail = head;
                 }
@@ -216,6 +228,7 @@ class CarLinkList {
     }
 
     retiming(carNode) {
+        /*
         let p = this;
         clearTimeout(carNode.timer);
         carNode.timer = setTimeout(function () {
@@ -227,6 +240,7 @@ class CarLinkList {
                 p.remove_node_from_main(carNode.id);
                 console.warn(p.head.id, 'after remove node, removed id', carNode.id, p.toString(), p);
             }
-        }, 2000);
+        }, 2000);*/
+        carNode.timer.retiming();
     }
 }

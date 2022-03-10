@@ -158,7 +158,7 @@ class Car {
         let head = this.trusted_carLinklist.head;
 
         while (head.next != null) {
-            clearTimeout(head.next.timer);
+            head.next.timer.stop();
             head = head.next;
         }
 

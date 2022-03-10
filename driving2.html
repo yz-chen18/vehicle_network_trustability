@@ -109,6 +109,7 @@
 <script src="RouteViewer.js"></script>
 <script src="CommunicationRangeObserver.js"></script>
 <script src="CanvasDrawer.js"></script>
+<script src="Timer.js"></script>
 
 <script type="text/javascript">
     //基本地图加载
@@ -123,6 +124,7 @@
     const POSSIBILITY_RANGE = 0.1;
     const COMMUNICATION_RANGE = 20; // 通信经纬度距离
     const MESSAGE_SEND_CYCLE = 5; // 单位毫秒
+    const DECAY_CYCLE = 1000; // 衰减周期，单位毫秒
     const NEEDED_AMOUNT_FOR_TRUST_VALUE = 20; // 计算信任值所需要的时间周期数(或理解为数据量)
     const zoom = 20;
 

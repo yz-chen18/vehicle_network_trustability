@@ -46,6 +46,11 @@ class Application {
         let cars = this.cars;
         for (let i = 0; i < cars.length; i++) {
             cars[i].marker.resumeMove();
+            let head = cars[i].trusted_carLinklist.head;
+            while (head.next != null) {
+                head.next.timer.resume();
+                head = head.next;
+            }
         }
     }
 
@@ -54,6 +59,11 @@ class Application {
         let cars = this.cars;
         for (let i = 0; i < cars.length; i++) {
             cars[i].marker.pauseMove();
+            let head = cars[i].trusted_carLinklist.head;
+            while (head.next != null) {
+                head.next.timer.pause();
+                head = head.next;
+            }
         }
     }
 }
